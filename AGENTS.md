@@ -6,7 +6,7 @@
 
 核心气质：
 - 免费、无广告、无账号、离线优先。
-- 帮助初学者理解卦象如何生成、如何阅读、如何记录复盘。
+- 帮助初学者通过一个清楚的起卦、分析和历史复盘闭环理解卦象如何生成、如何阅读。
 - 所有占问内容仅作为文化学习、反思和记录工具，不提供确定性预测承诺。
 
 ## 技术边界
@@ -22,25 +22,21 @@
 ## MVP 功能范围
 
 必须完成：
-- 起卦：铜钱法自动起卦、手动画爻。
-- 结果：展示本卦、动爻、变卦、上下卦、六爻结构。
-- 卦库：64 卦浏览、搜索、详情页。
-- 记录：保存问题、起卦方式、六爻值、结果、备注、时间。
-- 学习：阴阳、八卦、六十四卦、动爻/变卦的入门解释。
+- 起卦：自动取卦，重点呈现六爻生成动画。
+- 结果：展示本卦、动爻、变卦、上下卦、六爻结构和克制的结构分析。
+- 历史：保存问题、六爻值、结果、备注、时间。
 - 设置：隐私说明、免责声明、数据清除。
 
 暂不做：
-- 登录、云同步、社区、推送、付费、AI 解读、复杂六爻纳甲、风水、八字。
+- 登录、云同步、社区、推送、付费、AI 解读、复杂六爻纳甲、风水、八字、手动画爻、独立卦库、独立学习页。
 
 ## 代码组织建议
 
 - `YiyaoApp/`: App entry 与根导航。
-- `Features/Casting/`: 起卦流程、手动画爻、结果页。
-- `Features/HexagramLibrary/`: 卦库列表、搜索、详情。
-- `Features/Journal/`: 记录列表、详情、备注。
-- `Features/Learning/`: 入门学习页。
+- `Features/Casting/`: 自动起卦、动画、结果页。
+- `Features/History/`: 历史列表、详情、备注。
 - `Domain/`: Hexagram、Trigram、LineValue、CastingResult 等纯模型。
-- `Services/`: HexagramStore、CastingEngine、JournalStore。
+- `Services/`: HexagramStore、CastingEngine、HistoryStore。
 - `Resources/`: hexagrams.json、trigrams.json。
 - `Tests/`: 起卦计算、变卦、搜索、持久化测试。
 
@@ -51,7 +47,7 @@
 推荐角色：
 - Product/Content Agent：整理 64 卦数据结构、学习文案、免责声明。
 - Engine Agent：实现阴阳爻、八卦、六十四卦、本卦/变卦计算。
-- UI Agent：SwiftUI App shell、起卦、卦库、记录、学习页。
+- UI Agent：SwiftUI App shell、起卦动画、结果分析、历史页。
 - Persistence Agent：SwiftData/本地存储与导入 fixture。
 - Validation Agent：独立构建、测试、走查 UI，判断 PR 是否可合并。
 
@@ -69,7 +65,7 @@
 每个 PR 至少运行：
 - `xcodebuild` 或 XcodeBuildMCP 构建。
 - 相关单元测试。
-- 模拟器 smoke test：打开 App，完成一次起卦，查看卦库，保存记录。
+- 模拟器 smoke test：打开 App，完成一次自动起卦，查看结果分析，保存历史。
 
 UI PR 还需检查：
 - 小屏 iPhone 宽度不截断。
@@ -89,4 +85,3 @@ UI PR 还需检查：
 - “改命开运”
 - “保证结果”
 - “替代专业建议”
-
