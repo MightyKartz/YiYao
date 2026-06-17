@@ -17,6 +17,14 @@
 		B30000000000000000000010 /* LocalOnlyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* LocalOnlyPolicy.swift */; };
 		B30000000000000000000011 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* Assets.xcassets */; };
 		B30000000000000000000012 /* AppShellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* AppShellTests.swift */; };
+		B30000000000000000000013 /* DomainModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* DomainModelTests.swift */; };
+		B30000000000000000000014 /* CastingEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000014 /* CastingEngineTests.swift */; };
+		B30000000000000000000015 /* CoinFace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* CoinFace.swift */; };
+		B30000000000000000000016 /* CoinThrow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* CoinThrow.swift */; };
+		B30000000000000000000017 /* Trigram.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* Trigram.swift */; };
+		B30000000000000000000018 /* HexagramPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* HexagramPattern.swift */; };
+		B30000000000000000000019 /* CastingResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* CastingResult.swift */; };
+		B30000000000000000000020 /* CastingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000020 /* CastingEngine.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +48,14 @@
 		A20000000000000000000010 /* LocalOnlyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalOnlyPolicy.swift; sourceTree = "<group>"; };
 		A20000000000000000000011 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20000000000000000000012 /* AppShellTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellTests.swift; sourceTree = "<group>"; };
+		A20000000000000000000013 /* DomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainModelTests.swift; sourceTree = "<group>"; };
+		A20000000000000000000014 /* CastingEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CastingEngineTests.swift; sourceTree = "<group>"; };
+		A20000000000000000000015 /* CoinFace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinFace.swift; sourceTree = "<group>"; };
+		A20000000000000000000016 /* CoinThrow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinThrow.swift; sourceTree = "<group>"; };
+		A20000000000000000000017 /* Trigram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trigram.swift; sourceTree = "<group>"; };
+		A20000000000000000000018 /* HexagramPattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagramPattern.swift; sourceTree = "<group>"; };
+		A20000000000000000000019 /* CastingResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CastingResult.swift; sourceTree = "<group>"; };
+		A20000000000000000000020 /* CastingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CastingEngine.swift; sourceTree = "<group>"; };
 		A80000000000000000000001 /* YiYao.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YiYao.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A80000000000000000000002 /* YiYaoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YiYaoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -132,6 +148,11 @@
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000009 /* LineValue.swift */,
+				A20000000000000000000015 /* CoinFace.swift */,
+				A20000000000000000000016 /* CoinThrow.swift */,
+				A20000000000000000000017 /* Trigram.swift */,
+				A20000000000000000000018 /* HexagramPattern.swift */,
+				A20000000000000000000019 /* CastingResult.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -140,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000010 /* LocalOnlyPolicy.swift */,
+				A20000000000000000000020 /* CastingEngine.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -164,6 +186,8 @@
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000012 /* AppShellTests.swift */,
+				A20000000000000000000013 /* DomainModelTests.swift */,
+				A20000000000000000000014 /* CastingEngineTests.swift */,
 			);
 			path = YiYaoTests;
 			sourceTree = "<group>";
@@ -275,6 +299,12 @@
 				B30000000000000000000008 /* SettingsView.swift in Sources */,
 				B30000000000000000000009 /* LineValue.swift in Sources */,
 				B30000000000000000000010 /* LocalOnlyPolicy.swift in Sources */,
+				B30000000000000000000015 /* CoinFace.swift in Sources */,
+				B30000000000000000000016 /* CoinThrow.swift in Sources */,
+				B30000000000000000000017 /* Trigram.swift in Sources */,
+				B30000000000000000000018 /* HexagramPattern.swift in Sources */,
+				B30000000000000000000019 /* CastingResult.swift in Sources */,
+				B30000000000000000000020 /* CastingEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,6 +313,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B30000000000000000000012 /* AppShellTests.swift in Sources */,
+				B30000000000000000000013 /* DomainModelTests.swift in Sources */,
+				B30000000000000000000014 /* CastingEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

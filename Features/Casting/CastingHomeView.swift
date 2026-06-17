@@ -12,7 +12,7 @@ struct CastingHomeView: View {
     @State private var coinSpinAngle = 0.0
     @State private var coinDropProgress = 1.0
     @State private var currentCoinFaces: [CoinFace] = [.heads, .tails, .heads]
-    @GestureState private var isPressingCastButton = false
+    @State private var castingResult: CastingResult?
 
     var body: some View {
         ScrollViewReader { scrollProxy in
@@ -87,13 +87,23 @@ struct CastingHomeView: View {
     }
 
     private var castButton: some View {
-        HStack(spacing: 12) {
-            Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
-                .font(.system(.headline, design: .serif))
+        Button {
+            beginCasting()
+        } label: {
+            ZStack {
+                Rectangle()
+                    .fill(Color.clear)
 
-            Circle()
-                .fill(cinnabar.opacity(canCast ? 0.92 : 0.35))
-                .frame(width: 7, height: 7)
+                HStack(spacing: 12) {
+                    Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
+                        .font(.system(.headline, design: .serif))
+
+                    Circle()
+                        .fill(cinnabar.opacity(canCast ? 0.92 : 0.35))
+                        .frame(width: 7, height: 7)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 56)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 18)
@@ -103,7 +113,6 @@ struct CastingHomeView: View {
         }
         .foregroundStyle(canCast ? actionText : .secondary)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .contentShape(RoundedRectangle(cornerRadius: 8))
         .overlay {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(actionBorder)
@@ -121,19 +130,9 @@ struct CastingHomeView: View {
                 .opacity(canCast ? 1 : 0)
         }
         .shadow(color: actionShadow, radius: 12, y: 5)
-        .scaleEffect(isPressingCastButton ? 0.985 : 1)
-        .opacity(isPressingCastButton ? 0.92 : 1)
-        .highPriorityGesture(
-            DragGesture(minimumDistance: 0)
-                .updating($isPressingCastButton) { _, state, _ in
-                    state = canCast
-                }
-                .onEnded { _ in
-                    beginCasting()
-                }
-        )
-        .animation(.easeOut(duration: 0.16), value: isPressingCastButton)
-        .accessibilityAddTraits(.isButton)
+        .buttonStyle(.plain)
+        .disabled(!canCast)
+        .animation(.easeOut(duration: 0.16), value: canCast)
         .accessibilityLabel(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
         .accessibilityIdentifier("casting.castButton")
         .accessibilityAction {
@@ -195,7 +194,7 @@ struct CastingHomeView: View {
             }
 
             HexagramPreviewView(
-                lines: previewLines,
+                lines: displayLines,
                 revealedLineCount: revealedLineCount,
                 movingColor: cinnabar,
                 stableColor: hasCompletedCasting ? resultLineColor : Color.primary,
@@ -207,10 +206,10 @@ struct CastingHomeView: View {
 
             if hasCompletedCasting {
                 VStack(spacing: 8) {
-                    Text("既济")
+                    Text("卦象已成")
                         .font(.system(size: 36, weight: .semibold, design: .serif))
                         .foregroundStyle(resultPrimaryText)
-                    Text("上坎下离，水火相交")
+                    Text(resultTrigramSummary)
                         .font(.system(size: 16, weight: .medium, design: .serif))
                         .foregroundStyle(resultSecondaryText)
                 }
@@ -240,9 +239,9 @@ struct CastingHomeView: View {
                 .font(.system(.headline, design: .serif))
 
             VStack(spacing: 12) {
-                AnalysisRow(title: "卦象", value: "事已成形，仍宜守中")
-                AnalysisRow(title: "动爻", value: "三爻、上爻为动，宜观其变")
-                AnalysisRow(title: "可记", value: "先存所问，日后复看")
+                AnalysisRow(title: "本卦", value: originalStructureText)
+                AnalysisRow(title: "动爻", value: movingLinesText)
+                AnalysisRow(title: "变卦", value: changedStructureText)
             }
 
             Divider()
@@ -452,23 +451,51 @@ struct CastingHomeView: View {
         }
     }
 
-    private var previewLines: [LineValue] {
-        [.youngYang, .youngYin, .oldYang, .youngYin, .youngYang, .oldYin]
+    private var displayLines: [LineValue] {
+        castingResult?.originalLines ?? placeholderLines
     }
 
-    private var previewCoinThrows: [[CoinFace]] {
-        previewLines.map { line in
-            switch line {
-            case .oldYin:
-                [.tails, .tails, .tails]
-            case .youngYang:
-                [.heads, .tails, .tails]
-            case .youngYin:
-                [.heads, .heads, .tails]
-            case .oldYang:
-                [.heads, .heads, .heads]
-            }
+    private var placeholderLines: [LineValue] {
+        [.youngYang, .youngYin, .youngYang, .youngYin, .youngYang, .youngYin]
+    }
+
+    private var coinThrows: [CoinThrow] {
+        castingResult?.coinThrows ?? []
+    }
+
+    private var resultTrigramSummary: String {
+        guard let castingResult else {
+            return "上下卦待成"
         }
+        return "上\(castingResult.upperTrigram.name)下\(castingResult.lowerTrigram.name)，\(castingResult.upperTrigram.imageName)\(castingResult.lowerTrigram.imageName)相承"
+    }
+
+    private var originalStructureText: String {
+        guard let castingResult else {
+            return "待起"
+        }
+        return "上\(castingResult.upperTrigram.name)下\(castingResult.lowerTrigram.name)"
+    }
+
+    private var changedStructureText: String {
+        guard let castingResult else {
+            return "待起"
+        }
+        guard !castingResult.movingLineNumbers.isEmpty else {
+            return "无动爻，与本卦同"
+        }
+        return "上\(castingResult.changedUpperTrigram.name)下\(castingResult.changedLowerTrigram.name)"
+    }
+
+    private var movingLinesText: String {
+        guard let castingResult else {
+            return "待起"
+        }
+        let movingLineNumbers = castingResult.movingLineNumbers
+        guard !movingLineNumbers.isEmpty else {
+            return "无动爻，先观本卦"
+        }
+        return movingLineNumbers.map { lineName(for: $0 - 1) }.joined(separator: "、") + "为动"
     }
 
     private func coinJitter(for index: Int) -> CGFloat {
@@ -486,10 +513,12 @@ struct CastingHomeView: View {
             return
         }
 
+        let result = CastingEngine().cast()
+        castingResult = result
         didPrepareCasting = true
         isCasting = true
         activeThrowIndex = 0
-        revealedLineCount = reduceMotion ? previewLines.count : 0
+        revealedLineCount = reduceMotion ? result.originalLines.count : 0
         currentCoinFaces = [.heads, .tails, .heads]
         coinDropProgress = 1
 
@@ -504,7 +533,11 @@ struct CastingHomeView: View {
     }
 
     private func runCastingAnimation() async {
-        for index in previewLines.indices {
+        let throwSnapshot = await MainActor.run {
+            self.coinThrows
+        }
+
+        for index in throwSnapshot.indices {
             await MainActor.run {
                 activeThrowIndex = index
                 currentCoinFaces = [.heads, .tails, .heads]
@@ -531,7 +564,7 @@ struct CastingHomeView: View {
 
             await MainActor.run {
                 withAnimation(.easeInOut(duration: 0.34)) {
-                    currentCoinFaces = previewCoinThrows[index]
+                    currentCoinFaces = throwSnapshot[index].faces
                     coinSpinAngle += 90
                 }
             }
@@ -564,11 +597,6 @@ struct CastingHomeView: View {
 private enum CastingScrollTarget {
     static let result = "casting.result"
     static let analysis = "casting.analysis"
-}
-
-private enum CoinFace {
-    case heads
-    case tails
 }
 
 private struct CoinView: View {

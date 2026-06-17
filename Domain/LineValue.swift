@@ -1,4 +1,4 @@
-enum LineValue: Int, CaseIterable, Identifiable {
+enum LineValue: Int, CaseIterable, Identifiable, Codable {
     case oldYin = 6
     case youngYang = 7
     case youngYin = 8
@@ -10,8 +10,27 @@ enum LineValue: Int, CaseIterable, Identifiable {
         self == .youngYang || self == .oldYang
     }
 
+    var isYin: Bool {
+        !isYang
+    }
+
     var isChanging: Bool {
         self == .oldYin || self == .oldYang
+    }
+
+    var changedValue: LineValue {
+        switch self {
+        case .oldYin:
+            .youngYang
+        case .oldYang:
+            .youngYin
+        case .youngYang, .youngYin:
+            self
+        }
+    }
+
+    init?(coinTotal: Int) {
+        self.init(rawValue: coinTotal)
     }
 
     var title: String {
