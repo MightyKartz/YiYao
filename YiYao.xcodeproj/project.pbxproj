@@ -11,9 +11,7 @@
 		B30000000000000000000002 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* AppView.swift */; };
 		B30000000000000000000003 /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* AppTab.swift */; };
 		B30000000000000000000004 /* CastingHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* CastingHomeView.swift */; };
-		B30000000000000000000005 /* HexagramLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* HexagramLibraryView.swift */; };
-		B30000000000000000000006 /* JournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* JournalView.swift */; };
-		B30000000000000000000007 /* LearningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* LearningView.swift */; };
+		B30000000000000000000006 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* HistoryView.swift */; };
 		B30000000000000000000008 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* SettingsView.swift */; };
 		B30000000000000000000009 /* LineValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* LineValue.swift */; };
 		B30000000000000000000010 /* LocalOnlyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* LocalOnlyPolicy.swift */; };
@@ -36,9 +34,7 @@
 		A20000000000000000000002 /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		A20000000000000000000003 /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		A20000000000000000000004 /* CastingHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CastingHomeView.swift; sourceTree = "<group>"; };
-		A20000000000000000000005 /* HexagramLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagramLibraryView.swift; sourceTree = "<group>"; };
-		A20000000000000000000006 /* JournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalView.swift; sourceTree = "<group>"; };
-		A20000000000000000000007 /* LearningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningView.swift; sourceTree = "<group>"; };
+		A20000000000000000000006 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A20000000000000000000008 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A20000000000000000000009 /* LineValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineValue.swift; sourceTree = "<group>"; };
 		A20000000000000000000010 /* LocalOnlyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalOnlyPolicy.swift; sourceTree = "<group>"; };
@@ -102,9 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000006 /* Casting */,
-				A10000000000000000000007 /* HexagramLibrary */,
-				A10000000000000000000008 /* Journal */,
-				A10000000000000000000009 /* Learning */,
+				A10000000000000000000008 /* History */,
 				A10000000000000000000010 /* Settings */,
 			);
 			path = Features;
@@ -118,28 +112,12 @@
 			path = Casting;
 			sourceTree = "<group>";
 		};
-		A10000000000000000000007 /* HexagramLibrary */ = {
+		A10000000000000000000008 /* History */ = {
 			isa = PBXGroup;
 			children = (
-				A20000000000000000000005 /* HexagramLibraryView.swift */,
+				A20000000000000000000006 /* HistoryView.swift */,
 			);
-			path = HexagramLibrary;
-			sourceTree = "<group>";
-		};
-		A10000000000000000000008 /* Journal */ = {
-			isa = PBXGroup;
-			children = (
-				A20000000000000000000006 /* JournalView.swift */,
-			);
-			path = Journal;
-			sourceTree = "<group>";
-		};
-		A10000000000000000000009 /* Learning */ = {
-			isa = PBXGroup;
-			children = (
-				A20000000000000000000007 /* LearningView.swift */,
-			);
-			path = Learning;
+			path = History;
 			sourceTree = "<group>";
 		};
 		A10000000000000000000010 /* Settings */ = {
@@ -293,9 +271,7 @@
 				B30000000000000000000002 /* AppView.swift in Sources */,
 				B30000000000000000000003 /* AppTab.swift in Sources */,
 				B30000000000000000000004 /* CastingHomeView.swift in Sources */,
-				B30000000000000000000005 /* HexagramLibraryView.swift in Sources */,
-				B30000000000000000000006 /* JournalView.swift in Sources */,
-				B30000000000000000000007 /* LearningView.swift in Sources */,
+				B30000000000000000000006 /* HistoryView.swift in Sources */,
 				B30000000000000000000008 /* SettingsView.swift in Sources */,
 				B30000000000000000000009 /* LineValue.swift in Sources */,
 				B30000000000000000000010 /* LocalOnlyPolicy.swift in Sources */,

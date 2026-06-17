@@ -2,9 +2,7 @@ import SwiftUI
 
 enum AppTab: String, CaseIterable, Identifiable {
     case casting
-    case library
-    case journal
-    case learning
+    case history
     case settings
 
     var id: String { rawValue }
@@ -13,12 +11,19 @@ enum AppTab: String, CaseIterable, Identifiable {
         switch self {
         case .casting:
             "起卦"
-        case .library:
-            "卦库"
-        case .journal:
-            "记录"
-        case .learning:
-            "学习"
+        case .history:
+            "历史"
+        case .settings:
+            "设置"
+        }
+    }
+
+    var navigationTitle: String {
+        switch self {
+        case .casting:
+            "一爻"
+        case .history:
+            "历史"
         case .settings:
             "设置"
         }
@@ -28,12 +33,8 @@ enum AppTab: String, CaseIterable, Identifiable {
         switch self {
         case .casting:
             "circle.hexagongrid"
-        case .library:
-            "books.vertical"
-        case .journal:
+        case .history:
             "book.closed"
-        case .learning:
-            "leaf"
         case .settings:
             "gearshape"
         }
@@ -48,12 +49,8 @@ enum AppTab: String, CaseIterable, Identifiable {
         switch self {
         case .casting:
             CastingHomeView()
-        case .library:
-            HexagramLibraryView()
-        case .journal:
-            JournalView()
-        case .learning:
-            LearningView()
+        case .history:
+            HistoryView()
         case .settings:
             SettingsView()
         }

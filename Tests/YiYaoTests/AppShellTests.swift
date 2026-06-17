@@ -3,11 +3,18 @@ import XCTest
 
 @MainActor
 final class AppShellTests: XCTestCase {
-    func testAppDefinesFivePrimaryTabsInProductOrder() {
+    func testAppDefinesThreePrimaryTabsInProductOrder() {
         XCTAssertEqual(
             AppTab.allCases.map(\.title),
-            ["起卦", "卦库", "记录", "学习", "设置"]
+            ["起卦", "历史", "设置"]
         )
+    }
+
+    func testAppKeepsMVPInformationArchitectureFocused() {
+        let titles = AppTab.allCases.map(\.title)
+
+        XCTAssertFalse(titles.contains("卦库"))
+        XCTAssertFalse(titles.contains("学习"))
     }
 
     func testSettingsCopyKeepsPrivacyAndDisclaimerLocalAndRestrained() {

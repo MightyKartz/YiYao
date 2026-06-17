@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AppView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedTab: AppTab = .casting
 
     var body: some View {
@@ -8,16 +9,70 @@ struct AppView: View {
             ForEach(AppTab.allCases) { tab in
                 NavigationStack {
                     tab.content
-                        .navigationTitle(tab.title)
+                        .navigationTitle(tab.navigationTitle)
+                        .toolbar(tab == .casting ? .hidden : .automatic, for: .navigationBar)
                 }
                 .tabItem { tab.label }
                 .tag(tab)
                 .accessibilityIdentifier(tab.accessibilityIdentifier)
             }
         }
+        .tint(YiyaoPalette.tabTint(colorScheme))
     }
 }
 
 #Preview {
     AppView()
+}
+
+enum YiyaoPalette {
+    static func paperBase(_ colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark
+            ? Color(red: 0.12, green: 0.155, blue: 0.14)
+            : Color(red: 0.965, green: 0.946, blue: 0.90)
+    }
+
+    static func paperWash(_ colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark
+            ? Color(red: 0.16, green: 0.22, blue: 0.19)
+            : Color(red: 0.76, green: 0.82, blue: 0.76)
+    }
+
+    static func panelBase(_ colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark
+            ? Color(red: 0.16, green: 0.20, blue: 0.175)
+            : Color(red: 0.995, green: 0.982, blue: 0.94)
+    }
+
+    static func panelBorder(_ colorScheme: ColorScheme) -> Color {
+        grayGreen(colorScheme).opacity(colorScheme == .dark ? 0.24 : 0.18)
+    }
+
+    static func ink(_ colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark
+            ? Color(red: 0.88, green: 0.90, blue: 0.84)
+            : Color(red: 0.16, green: 0.22, blue: 0.19)
+    }
+
+    static func secondaryInk(_ colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark
+            ? Color(red: 0.68, green: 0.74, blue: 0.68)
+            : Color(red: 0.40, green: 0.47, blue: 0.42)
+    }
+
+    static func grayGreen(_ colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark
+            ? Color(red: 0.56, green: 0.70, blue: 0.63)
+            : Color(red: 0.28, green: 0.38, blue: 0.32)
+    }
+
+    static func cinnabar(_ colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark
+            ? Color(red: 0.78, green: 0.32, blue: 0.26)
+            : Color(red: 0.56, green: 0.14, blue: 0.10)
+    }
+
+    static func tabTint(_ colorScheme: ColorScheme) -> Color {
+        grayGreen(colorScheme)
+    }
 }
