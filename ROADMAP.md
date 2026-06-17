@@ -2,10 +2,10 @@
 
 ## Phase 0 - 项目搭建
 
-- [ ] 创建 SwiftUI iOS 项目。
-- [ ] 配置 bundle id、最低系统、测试 target。
-- [ ] 建立目录结构：Domain、Services、Features、Resources、Tests。
-- [ ] 写入项目规则与隐私/免责声明初稿。
+- [x] 创建 SwiftUI iOS 项目。
+- [x] 配置 bundle id、最低系统、测试 target。
+- [x] 建立目录结构：Domain、Services、Features、Resources、Tests。
+- [x] 写入项目规则与隐私/免责声明初稿。
 
 ## Phase 1 - 领域模型与起卦引擎
 
@@ -49,4 +49,3 @@
 - [ ] 小屏和深浅色检查。
 - [ ] App 图标、启动图、App Store 描述。
 - [ ] TestFlight 内测。
-
