@@ -31,7 +31,7 @@ struct CastingHomeView: View {
                                 .id(CastingScrollTarget.analysis)
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
                             Color.clear
-                                .frame(height: 112)
+                                .frame(height: 92)
                                 .id(CastingScrollTarget.analysisBottomSpacer)
                         }
 
@@ -99,20 +99,20 @@ struct CastingHomeView: View {
                 ZStack {
                     castButtonSurface
 
-                    Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
-                        .font(OracleTypeface.headline(19))
-                        .foregroundStyle(canCast ? actionText : .secondary)
-                        .frame(maxWidth: .infinity, minHeight: 50)
-                        .padding(.horizontal, 44)
+                    HStack(spacing: 9) {
+                        Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
+                            .font(OracleTypeface.headline(19))
+                            .foregroundStyle(canCast ? actionText : .secondary)
 
-                    Image("CastingButtonDot")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 12, height: 12)
-                        .opacity(canCast ? 1 : 0.42)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.trailing, 37)
-                        .accessibilityHidden(true)
+                        Image("CastingButtonDot")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 11, height: 11)
+                            .opacity(canCast ? 1 : 0.42)
+                            .accessibilityHidden(true)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .padding(.horizontal, 44)
                 }
                 .frame(maxWidth: 306)
                 .frame(height: 50)
@@ -208,7 +208,7 @@ struct CastingHomeView: View {
                         .font(OracleTypeface.caption(12))
                         .foregroundStyle(resultSecondaryText)
                     HStack(spacing: 5) {
-                        Text(movingLinesSummary)
+                        Text(movingLinesBadgeText)
                             .font(OracleTypeface.caption(12))
                             .foregroundStyle(resultPrimaryText)
                             .lineLimit(1)
@@ -256,14 +256,18 @@ struct CastingHomeView: View {
                     }
                 }
                 .frame(width: 44, alignment: .leading)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 5)
+                .background(Color.white.opacity(0.22))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
 
                 Spacer(minLength: 0)
             }
 
             if hasCompletedCasting {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text("卦象已成")
-                        .font(OracleTypeface.title(27))
+                        .font(OracleTypeface.title(26))
                         .foregroundStyle(resultPrimaryText)
                     Text(resultTrigramSummary)
                         .font(OracleTypeface.body(15))
@@ -275,9 +279,9 @@ struct CastingHomeView: View {
         }
         .padding(.horizontal, 24)
         .padding(.top, 22)
-        .padding(.bottom, 18)
+        .padding(.bottom, hasCompletedCasting ? 22 : 18)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: hasCompletedCasting ? 266 : 226, alignment: .topLeading)
+        .frame(height: hasCompletedCasting ? 286 : 226, alignment: .topLeading)
         .background {
             oraclePanelFrameSurface
         }
@@ -337,12 +341,12 @@ struct CastingHomeView: View {
             Image("PaperInkBackground")
                 .resizable()
                 .scaledToFill()
-                .opacity(0.26)
+                .opacity(0.18)
                 .accessibilityHidden(true)
 
             Image("OraclePageWash")
                 .resizable(resizingMode: .stretch)
-                .opacity(0.92)
+                .opacity(0.82)
                 .accessibilityHidden(true)
 
             pageBackground
@@ -458,10 +462,10 @@ struct CastingHomeView: View {
             Image("OracleAnalysisLandscapeWash")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 206)
-                .opacity(0.58)
-                .padding(.trailing, 6)
-                .padding(.bottom, 8)
+                .frame(width: 188)
+                .opacity(0.36)
+                .padding(.trailing, 2)
+                .padding(.bottom, 4)
                 .accessibilityHidden(true)
 
             Image("OracleInputPanelFrame")
@@ -567,12 +571,26 @@ struct CastingHomeView: View {
             .joined(separator: "、")
     }
 
+    private var movingLinesBadgeText: String {
+        guard hasCompletedCasting else {
+            return "待定"
+        }
+        let movingLineNumbers = castingMovingLineNumbers
+        guard !movingLineNumbers.isEmpty else {
+            return "无"
+        }
+        guard movingLineNumbers.count == 1, let lineNumber = movingLineNumbers.first else {
+            return "\(movingLineNumbers.count)爻动"
+        }
+        return linePositionName(for: lineNumber - 1, line: displayLines[lineNumber - 1])
+    }
+
     private func coinJitter(for index: Int) -> CGFloat {
         [-22, 4, 18][index]
     }
 
     private func coinRestingTilt(for index: Int) -> Double {
-        [-8, 5, -3][index]
+        [-3, 2, -2][index]
     }
 
     private func lineName(for index: Int) -> String {
@@ -833,7 +851,7 @@ private struct CoinView: View {
             .resizable()
             .scaledToFit()
             .padding(2)
-            .frame(width: 68, height: 68)
+            .frame(width: coinDiameter, height: coinDiameter)
             .contentShape(Rectangle())
             .rotationEffect(.degrees(displayRotation))
             .saturation(0.95)
@@ -858,6 +876,10 @@ private struct CoinView: View {
             return 0
         }
         return restingTilt
+    }
+
+    private var coinDiameter: CGFloat {
+        face == .heads ? 66 : 68
     }
 
     private var coinShadow: Color {
