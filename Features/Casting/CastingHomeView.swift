@@ -15,47 +15,49 @@ struct CastingHomeView: View {
     @State private var castingResult: CastingResult?
 
     var body: some View {
-        ScrollViewReader { scrollProxy in
-            ScrollView {
-                VStack(spacing: hasCompletedCasting ? 16 : 18) {
-                    header
-                    questionEditor
-                    if !hasCompletedCasting {
+        GeometryReader { geometry in
+            ScrollViewReader { scrollProxy in
+                ScrollView {
+                    VStack(spacing: hasCompletedCasting ? 12 : 13) {
+                        header
+                        questionEditor
                         castButton
+                        coinCeremonyStage
+                        hexagramStage
+                            .id(CastingScrollTarget.result)
+                        if hasCompletedCasting {
+                            analysisPanel
+                                .id(CastingScrollTarget.analysis)
+                                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        }
+
+                        if !hasCompletedCasting {
+                            Spacer(minLength: 0)
+                        }
                     }
-                    if isCasting {
-                        coinTossStage
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                    }
-                    hexagramStage
-                        .id(CastingScrollTarget.result)
-                    if hasCompletedCasting {
-                        analysisPanel
-                            .id(CastingScrollTarget.analysis)
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
-                        castButton
-                            .padding(.top, 2)
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    }
+                    .frame(width: max(0, geometry.size.width - 40), alignment: .top)
+                    .frame(minHeight: max(geometry.size.height - 96, hasCompletedCasting ? 760 : 700), alignment: .top)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+                    .padding(.bottom, 26)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, hasCompletedCasting ? 22 : 28)
-                .padding(.bottom, hasCompletedCasting ? 280 : 112)
-            }
-            .onChange(of: isCasting) { _, newValue in
-                guard !newValue, hasCompletedCasting else {
-                    return
+                .scrollContentBackground(.hidden)
+                .onChange(of: isCasting) { _, newValue in
+                    guard !newValue, hasCompletedCasting else {
+                        return
+                    }
+                    scrollToResult(in: scrollProxy)
                 }
-                scrollToResult(in: scrollProxy)
+                .background(appBackground)
             }
-            .background(appBackground)
         }
+        .background(appBackground)
     }
 
     private var header: some View {
         VStack(spacing: 8) {
             Text("一事在心")
-                .font(.system(size: 36, weight: .semibold, design: .serif))
+                .font(.system(size: 32, weight: .semibold, design: .serif))
                 .foregroundStyle(ink)
 
             Text("缓书其事，静观其变。")
@@ -71,19 +73,17 @@ struct CastingHomeView: View {
             .lineLimit(3...5)
             .textFieldStyle(.plain)
             .font(.body)
-            .padding(14)
-            .frame(minHeight: 108, alignment: .topLeading)
+            .tint(cinnabar)
+            .padding(12)
+            .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading)
             .accessibilityLabel("所书之事")
             .accessibilityHint("可书一事，亦可默问。")
             .accessibilityIdentifier("casting.question")
         .background {
-            panelSurface
+            smallPanelFrameSurface
         }
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(panelBorder)
-        }
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .modifier(InputPanelChrome())
     }
 
     private var castButton: some View {
@@ -91,67 +91,37 @@ struct CastingHomeView: View {
             beginCasting()
         } label: {
             ZStack {
-                Rectangle()
-                    .fill(Color.clear)
+                castButtonSurface
 
-                HStack(spacing: 12) {
-                    Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
-                        .font(.system(.headline, design: .serif))
-
-                    Image("CinnabarSealDot")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 9, height: 9)
-                        .opacity(canCast ? 0.88 : 0.34)
-                        .accessibilityHidden(true)
-                }
+                Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
+                    .font(.system(.headline, design: .serif))
+                    .foregroundStyle(canCast ? actionText : .secondary)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .padding(.horizontal, 44)
             }
-            .frame(maxWidth: .infinity, minHeight: 56)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .contentShape(Rectangle())
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 18)
-        .frame(height: 56)
-        .background {
-            castButtonSurface
-        }
-        .foregroundStyle(canCast ? actionText : .secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(actionBorder)
-        }
-        .overlay(alignment: .top) {
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.white.opacity(colorScheme == .dark ? 0.08 : 0.34), lineWidth: 1)
-                .blendMode(.softLight)
-        }
-        .overlay(alignment: .bottom) {
-            Rectangle()
-                .fill(actionText.opacity(colorScheme == .dark ? 0.08 : 0.10))
-                .frame(height: 1)
-                .padding(.horizontal, 10)
-                .opacity(canCast ? 1 : 0)
-        }
-        .shadow(color: actionShadow, radius: 12, y: 5)
-        .contentShape(RoundedRectangle(cornerRadius: 8))
         .buttonStyle(.plain)
         .disabled(!canCast)
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: actionShadow, radius: 10, y: 4)
+        .contentShape(Rectangle())
         .animation(.easeOut(duration: 0.16), value: canCast)
         .accessibilityLabel(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
         .accessibilityIdentifier("casting.castButton")
-        .accessibilityAction {
-            beginCasting()
-        }
         .accessibilityHint("以三枚铜钱生成六爻。")
     }
 
-    private var coinTossStage: some View {
-        VStack(alignment: .leading, spacing: 16) {
+    private var coinCeremonyStage: some View {
+        VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text("三钱既陈")
+                Text(isCasting ? "三钱既陈" : hasCompletedCasting ? "三钱已落" : "三钱静候")
                     .font(.system(.headline, design: .serif))
                 Spacer()
-                Text(lineName(for: activeThrowIndex))
+                Text(coinStageLabel)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -168,82 +138,109 @@ struct CastingHomeView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 4)
+            .frame(minHeight: 58)
 
-            Text("缓落一回，成爻一位；六爻具，则卦象成。")
+            coinLandingLine
+
+            Text(isCasting ? "缓落一回，成爻一位；六爻具，则卦象成。" : "三枚铜钱常驻于此，取卦后逐爻落定。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
-        .padding(16)
-        .background {
-            panelSurface
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(cinnabar.opacity(colorScheme == .dark ? 0.30 : 0.22))
-        }
+        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity)
     }
 
     private var hexagramStage: some View {
-        VStack(spacing: hasCompletedCasting ? 24 : 18) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("卦象")
-                    .font(.system(.headline, design: .serif))
-                    .foregroundStyle(hasCompletedCasting ? resultPrimaryText : Color.primary)
-                Spacer()
-                Text(stageLabel)
-                    .font(.caption)
-                    .foregroundStyle(hasCompletedCasting ? resultSecondaryText : .secondary)
-            }
-
-            HexagramPreviewView(
-                lines: displayLines,
-                revealedLineCount: revealedLineCount,
-                movingColor: cinnabar,
-                stableColor: hasCompletedCasting ? resultLineColor : Color.primary,
-                isResultStyle: hasCompletedCasting
-            )
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, hasCompletedCasting ? 8 : 10)
-            .sensoryFeedback(.selection, trigger: revealedLineCount)
-
-            if hasCompletedCasting {
-                VStack(spacing: 8) {
-                    Text("卦象已成")
-                        .font(.system(size: 36, weight: .semibold, design: .serif))
+        VStack(alignment: .leading, spacing: 13) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("本卦")
+                        .font(.system(.headline, design: .serif))
                         .foregroundStyle(resultPrimaryText)
-                    Text(resultTrigramSummary)
-                        .font(.system(size: 16, weight: .medium, design: .serif))
+
+                    Text(hasCompletedCasting ? originalStructureText : "六爻待成")
+                        .font(.caption)
                         .foregroundStyle(resultSecondaryText)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 4)
+                        .background(YiyaoPalette.paperWash(colorScheme).opacity(0.18))
+                        .clipShape(RoundedRectangle(cornerRadius: 5))
                 }
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
+
+                Spacer(minLength: 12)
+
+                VStack(alignment: .trailing, spacing: 5) {
+                    Text("变爻")
+                        .font(.caption)
+                        .foregroundStyle(resultSecondaryText)
+                    HStack(spacing: 5) {
+                        Text(movingLinesSummary)
+                            .font(.system(.caption, design: .serif))
+                            .foregroundStyle(resultPrimaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.82)
+                        Circle()
+                            .fill(cinnabar)
+                            .frame(width: 7, height: 7)
+                            .opacity(hasCompletedCasting && !castingMovingLineNumbers.isEmpty ? 0.9 : 0.24)
+                    }
+                }
+            }
+
+            HStack(alignment: .center, spacing: 12) {
+                Spacer(minLength: 0)
+
+                HexagramPreviewView(
+                    lines: displayLines,
+                    revealedLineCount: previewRevealedLineCount,
+                    movingColor: cinnabar,
+                    stableColor: hasCompletedCasting ? resultLineColor : resultLineColor.opacity(0.70),
+                    isResultStyle: true
+                )
+                .frame(width: 176)
+                .padding(.vertical, 4)
+                .sensoryFeedback(.selection, trigger: revealedLineCount)
+
+                Spacer(minLength: 2)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(displayLines.enumerated().reversed()), id: \.offset) { index, line in
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(line.isChanging ? cinnabar : resultLineColor.opacity(0.24))
+                                .frame(width: 5, height: 5)
+                                .opacity(index < previewRevealedLineCount ? 1 : 0.24)
+                            Text(linePositionName(for: index, line: line))
+                                .font(.system(.caption, design: .serif))
+                                .foregroundStyle(line.isChanging ? cinnabar : resultSecondaryText)
+                        }
+                        .opacity(index < previewRevealedLineCount ? 1 : 0.36)
+                    }
+                }
+                .frame(width: 44, alignment: .leading)
+
+                Spacer(minLength: 0)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(hasCompletedCasting ? "卦象已成" : "卦象未起")
+                    .font(.system(size: hasCompletedCasting ? 28 : 24, weight: .semibold, design: .serif))
+                    .foregroundStyle(resultPrimaryText)
+                Text(hasCompletedCasting ? resultTrigramSummary : "静候三钱落定，再观上下卦与动爻。")
+                    .font(.system(size: 15, weight: .medium, design: .serif))
+                    .foregroundStyle(resultSecondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(hasCompletedCasting ? 28 : 16)
+        .padding(18)
+        .frame(maxWidth: .infinity)
+        .frame(minHeight: hasCompletedCasting ? 238 : 204)
         .background {
-            if hasCompletedCasting {
-                resultSurface
-            } else {
-                panelSurface
-            }
+            oraclePanelFrameSurface
         }
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(didPrepareCasting ? resultBorder : panelBorder)
-        }
-        .overlay(alignment: .topLeading) {
-            if hasCompletedCasting {
-                panelCornerAccent
-            }
-        }
-        .overlay(alignment: .topTrailing) {
-            if hasCompletedCasting {
-                panelCornerAccent
-                    .scaleEffect(x: -1, y: 1)
-            }
-        }
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .modifier(OrnatePanelChrome())
         .animation(.easeInOut(duration: 0.32), value: didPrepareCasting)
         .animation(.easeInOut(duration: 0.32), value: isCasting)
     }
@@ -259,22 +256,21 @@ struct CastingHomeView: View {
                 AnalysisRow(title: "变卦", value: changedStructureText)
             }
 
-            Divider()
+            ceremonialDivider
+                .padding(.vertical, 2)
 
             Text("此处只作周易学习与自我反思的线索，不作确定判断。")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(16)
+        .padding(22)
+        .frame(maxWidth: .infinity)
         .background {
-            panelSurface
+            oraclePanelFrameSurface
         }
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .strokeBorder(panelBorder)
-        }
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .modifier(OrnatePanelChrome())
     }
 
     private var canCast: Bool {
@@ -285,17 +281,15 @@ struct CastingHomeView: View {
         didPrepareCasting && !isCasting
     }
 
-    private var stageLabel: String {
+    private var coinStageLabel: String {
         if isCasting {
             return lineName(for: activeThrowIndex)
         }
-        return hasCompletedCasting ? "卦成" : "待起"
+        return hasCompletedCasting ? "正反已定" : "未起卦"
     }
 
     private var pageBackground: Color {
-        colorScheme == .dark
-            ? Color(red: 0.12, green: 0.155, blue: 0.14)
-            : Color(red: 0.965, green: 0.946, blue: 0.90)
+        YiyaoPalette.paperBase(colorScheme)
     }
 
     private var appBackground: some View {
@@ -313,9 +307,7 @@ struct CastingHomeView: View {
     }
 
     private var panelBackground: Color {
-        colorScheme == .dark
-            ? Color(red: 0.16, green: 0.20, blue: 0.175)
-            : Color(red: 0.995, green: 0.982, blue: 0.94)
+        YiyaoPalette.panelBase(colorScheme)
     }
 
     private var panelSurface: some View {
@@ -344,84 +336,44 @@ struct CastingHomeView: View {
     @ViewBuilder
     private var castButtonSurface: some View {
         if canCast {
-            ZStack {
-                actionSurfaceBase
-
-                Image("PaperPanelTexture")
-                    .resizable()
-                    .scaledToFill()
-                    .opacity(colorScheme == .dark ? 0.14 : 0.22)
-                    .blendMode(.softLight)
-                    .accessibilityHidden(true)
-
-                LinearGradient(
-                    colors: [
-                        Color.white.opacity(colorScheme == .dark ? 0.08 : 0.24),
-                        Color.clear,
-                        paperJade.opacity(colorScheme == .dark ? 0.12 : 0.16)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+            Image("CastingButtonFrame")
+                .resizable(
+                    capInsets: EdgeInsets(top: 17, leading: 56, bottom: 17, trailing: 74),
+                    resizingMode: .stretch
                 )
-
-                Image("CastingButtonFrame")
-                    .resizable(
-                        capInsets: EdgeInsets(top: 38, leading: 96, bottom: 38, trailing: 96),
-                        resizingMode: .stretch
-                    )
-                    .opacity(colorScheme == .dark ? 0.05 : 0.18)
-                    .blendMode(.softLight)
-                    .accessibilityHidden(true)
-            }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityHidden(true)
         } else {
-            Color.secondary.opacity(0.18)
+            Image("CastingButtonFrame")
+                .resizable(
+                    capInsets: EdgeInsets(top: 17, leading: 56, bottom: 17, trailing: 74),
+                    resizingMode: .stretch
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .saturation(0.25)
+                .opacity(0.62)
+                .accessibilityHidden(true)
         }
     }
 
-    private var panelBorder: Color {
-        colorScheme == .dark
-            ? Color(red: 0.76, green: 0.84, blue: 0.76).opacity(0.12)
-            : Color(red: 0.38, green: 0.45, blue: 0.37).opacity(0.16)
-    }
-
     private var ink: Color {
-        colorScheme == .dark
-            ? Color(red: 0.88, green: 0.86, blue: 0.80)
-            : Color(red: 0.16, green: 0.22, blue: 0.19)
+        YiyaoPalette.ink(colorScheme)
     }
 
     private var actionText: Color {
-        colorScheme == .dark
-            ? Color(red: 0.90, green: 0.94, blue: 0.88)
-            : Color(red: 0.14, green: 0.24, blue: 0.21)
+        YiyaoPalette.ink(colorScheme)
     }
 
     private var cinnabar: Color {
-        Color(red: 0.56, green: 0.14, blue: 0.10)
+        YiyaoPalette.cinnabar(colorScheme)
     }
 
     private var paperJade: Color {
-        colorScheme == .dark
-            ? Color(red: 0.34, green: 0.47, blue: 0.39)
-            : Color(red: 0.70, green: 0.76, blue: 0.65)
-    }
-
-    private var resultCardBackground: Color {
-        colorScheme == .dark
-            ? Color(red: 0.18, green: 0.23, blue: 0.20).opacity(0.94)
-            : Color(red: 0.958, green: 0.958, blue: 0.902).opacity(0.98)
-    }
-
-    private var actionSurfaceBase: Color {
-        colorScheme == .dark
-            ? Color(red: 0.24, green: 0.32, blue: 0.28)
-            : Color(red: 0.90, green: 0.91, blue: 0.84)
+        YiyaoPalette.paperWash(colorScheme)
     }
 
     private var resultPrimaryText: Color {
-        colorScheme == .dark
-            ? Color(red: 0.91, green: 0.95, blue: 0.88)
-            : Color(red: 0.15, green: 0.25, blue: 0.21)
+        YiyaoPalette.ink(colorScheme)
     }
 
     private var resultSecondaryText: Color {
@@ -429,21 +381,7 @@ struct CastingHomeView: View {
     }
 
     private var resultLineColor: Color {
-        colorScheme == .dark
-            ? Color(red: 0.91, green: 0.95, blue: 0.88)
-            : Color(red: 0.28, green: 0.38, blue: 0.33)
-    }
-
-    private var resultBorder: Color {
-        colorScheme == .dark
-            ? Color(red: 0.70, green: 0.82, blue: 0.72).opacity(0.20)
-            : Color(red: 0.42, green: 0.50, blue: 0.40).opacity(0.18)
-    }
-
-    private var actionBorder: Color {
-        colorScheme == .dark
-            ? Color(red: 0.78, green: 0.86, blue: 0.76).opacity(0.16)
-            : Color(red: 0.42, green: 0.50, blue: 0.40).opacity(0.18)
+        YiyaoPalette.grayGreen(colorScheme)
     }
 
     private var actionShadow: Color {
@@ -452,42 +390,59 @@ struct CastingHomeView: View {
             : Color(red: 0.34, green: 0.35, blue: 0.28).opacity(0.08)
     }
 
-    private var resultSurface: some View {
+    private var oraclePanelFrameSurface: some View {
         ZStack {
-            resultCardBackground
+            panelSurface
 
-            Image("PaperPanelTexture")
+            Image("PaperInkBackground")
                 .resizable()
                 .scaledToFill()
-                .opacity(colorScheme == .dark ? 0.10 : 0.28)
+                .opacity(colorScheme == .dark ? 0.04 : 0.08)
                 .blendMode(colorScheme == .dark ? .softLight : .multiply)
                 .accessibilityHidden(true)
-
-            RadialGradient(
-                colors: [
-                    paperJade.opacity(colorScheme == .dark ? 0.18 : 0.16),
-                    Color.clear
-                ],
-                center: .bottomTrailing,
-                startRadius: 12,
-                endRadius: 260
-            )
         }
     }
 
-    private var panelCornerAccent: some View {
-        Image("PanelCornerAccent")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 42, height: 42)
-            .padding(8)
-            .opacity(colorScheme == .dark ? 0.08 : 0.16)
-            .blendMode(colorScheme == .dark ? .softLight : .multiply)
+    private var smallPanelFrameSurface: some View {
+        ZStack {
+            panelSurface
+
+            Image("OracleSmallPanelFrame")
+                .resizable(
+                    capInsets: EdgeInsets(top: 16, leading: 48, bottom: 16, trailing: 48),
+                    resizingMode: .stretch
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private var ceremonialDivider: some View {
+        Image("CeremonialDivider")
+            .resizable(
+                capInsets: EdgeInsets(top: 0, leading: 196, bottom: 0, trailing: 196),
+                resizingMode: .stretch
+            )
+            .frame(height: 15)
+            .opacity(0.86)
             .accessibilityHidden(true)
+    }
+
+    private var coinLandingLine: some View {
+        ceremonialDivider
+            .padding(.horizontal, 14)
     }
 
     private var displayLines: [LineValue] {
         castingResult?.originalLines ?? placeholderLines
+    }
+
+    private var previewRevealedLineCount: Int {
+        didPrepareCasting ? revealedLineCount : displayLines.count
+    }
+
+    private var castingMovingLineNumbers: [Int] {
+        castingResult?.movingLineNumbers ?? []
     }
 
     private var placeholderLines: [LineValue] {
@@ -533,6 +488,19 @@ struct CastingHomeView: View {
         return movingLineNumbers.map { lineName(for: $0 - 1) }.joined(separator: "、") + "为动"
     }
 
+    private var movingLinesSummary: String {
+        guard hasCompletedCasting else {
+            return "待定"
+        }
+        let movingLineNumbers = castingMovingLineNumbers
+        guard !movingLineNumbers.isEmpty else {
+            return "无"
+        }
+        return movingLineNumbers
+            .map { linePositionName(for: $0 - 1, line: displayLines[$0 - 1]) }
+            .joined(separator: "、")
+    }
+
     private func coinJitter(for index: Int) -> CGFloat {
         [-22, 4, 18][index]
     }
@@ -544,6 +512,18 @@ struct CastingHomeView: View {
     private func lineName(for index: Int) -> String {
         let names = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"]
         return names[min(max(index, 0), names.count - 1)]
+    }
+
+    private func linePositionName(for index: Int, line: LineValue) -> String {
+        let positions = ["初", "二", "三", "四", "五", "上"]
+        let safeIndex = min(max(index, 0), positions.count - 1)
+        let polarity = line.isYang ? "九" : "六"
+
+        if safeIndex == 0 || safeIndex == positions.count - 1 {
+            return "\(positions[safeIndex])\(polarity)"
+        }
+
+        return "\(polarity)\(positions[safeIndex])"
     }
 
     @MainActor
@@ -638,6 +618,92 @@ private enum CastingScrollTarget {
     static let analysis = "casting.analysis"
 }
 
+private struct InputPanelChrome: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(YiyaoPalette.grayGreen(colorScheme).opacity(0.18), lineWidth: 1)
+            }
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(YiyaoPalette.grayGreen(colorScheme).opacity(0.32))
+                    .frame(height: 1)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 1)
+            }
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(YiyaoPalette.grayGreen(colorScheme).opacity(0.24))
+                    .frame(height: 1)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 1)
+            }
+    }
+}
+
+private struct OrnatePanelChrome: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(YiyaoPalette.grayGreen(colorScheme).opacity(0.20), lineWidth: 1)
+            }
+            .overlay(alignment: .topLeading) {
+                PanelCorner()
+                    .padding(7)
+            }
+            .overlay(alignment: .topTrailing) {
+                PanelCorner()
+                    .scaleEffect(x: -1)
+                    .padding(7)
+            }
+            .overlay(alignment: .bottomLeading) {
+                PanelCorner()
+                    .scaleEffect(y: -1)
+                    .padding(7)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                PanelCorner()
+                    .scaleEffect(x: -1, y: -1)
+                    .padding(7)
+            }
+    }
+}
+
+private struct PanelDivider: View {
+    let opacity: Double
+
+    var body: some View {
+        GeometryReader { proxy in
+            Image("CeremonialDivider")
+                .resizable(
+                    capInsets: EdgeInsets(top: 0, leading: 196, bottom: 0, trailing: 196),
+                    resizingMode: .stretch
+                )
+                .frame(width: proxy.size.width, height: 8)
+                .accessibilityHidden(true)
+        }
+        .frame(height: 8)
+        .opacity(opacity)
+    }
+}
+
+private struct PanelCorner: View {
+    var body: some View {
+        Image("PanelCornerAccent")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 24, height: 24)
+            .opacity(0.42)
+            .accessibilityHidden(true)
+    }
+}
+
 private struct CoinView: View {
     @Environment(\.colorScheme) private var colorScheme
 
@@ -653,16 +719,17 @@ private struct CoinView: View {
                 .resizable()
                 .scaledToFit()
                 .opacity(1 - edgePresence)
+                .rotation3DEffect(.degrees(spinAngle), axis: (x: 0, y: 1, z: 0), perspective: 0.72)
 
             Image("CoinEdge")
                 .resizable()
                 .scaledToFit()
                 .opacity(edgePresence)
         }
-        .frame(width: 64, height: 64)
+        .frame(width: 66, height: 66)
         .rotationEffect(.degrees(restingRotation))
-        .saturation(colorScheme == .dark ? 0.78 : 0.92)
-        .brightness(colorScheme == .dark ? -0.05 : 0.01)
+        .saturation(0.92)
+        .brightness(0.0)
         .offset(
             x: horizontalJitter * (1 - dropProgress),
             y: -68 * (1 - dropProgress)
@@ -670,8 +737,7 @@ private struct CoinView: View {
         .scaleEffect(0.82 + 0.18 * dropProgress)
         .opacity(0.18 + 0.82 * dropProgress)
         .blur(radius: 1.2 * (1 - dropProgress))
-        .rotation3DEffect(.degrees(spinAngle), axis: (x: 0, y: 1, z: 0), perspective: 0.72)
-        .shadow(color: coinShadow, radius: 10, y: 6)
+        .shadow(color: coinShadow, radius: 8, y: 4)
         .accessibilityLabel(face == .heads ? "铜钱正面" : "铜钱背面")
     }
 
@@ -704,9 +770,7 @@ private struct CoinView: View {
     }
 
     private var coinShadow: Color {
-        colorScheme == .dark
-            ? Color.black.opacity(0.16)
-            : Color(red: 0.31, green: 0.25, blue: 0.16).opacity(0.14)
+        Color(red: 0.31, green: 0.25, blue: 0.16).opacity(0.12)
     }
 }
 
@@ -731,7 +795,7 @@ private struct HexagramPreviewView: View {
                     .accessibilityLabel(line.title)
             }
         }
-        .frame(maxWidth: isResultStyle ? 230 : nil)
+        .frame(maxWidth: isResultStyle ? 230 : 250)
         .padding(.horizontal, isResultStyle ? 0 : 12)
     }
 }
