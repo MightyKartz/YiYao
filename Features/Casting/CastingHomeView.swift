@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CastingHomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -31,12 +32,12 @@ struct CastingHomeView: View {
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
                         }
 
-                        if !hasCompletedCasting {
-                            Spacer(minLength: 0)
-                        }
                     }
                     .frame(width: max(0, geometry.size.width - 40), alignment: .top)
-                    .frame(minHeight: max(geometry.size.height - 96, hasCompletedCasting ? 760 : 700), alignment: .top)
+                    .frame(
+                        minHeight: max(geometry.size.height - 96, hasCompletedCasting ? 760 : 700),
+                        alignment: .top
+                    )
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
                     .padding(.bottom, 26)
@@ -57,11 +58,11 @@ struct CastingHomeView: View {
     private var header: some View {
         VStack(spacing: 8) {
             Text("一事在心")
-                .font(.system(size: 32, weight: .semibold, design: .serif))
+                .font(OracleTypeface.title(32))
                 .foregroundStyle(ink)
 
             Text("缓书其事，静观其变。")
-                .font(.callout)
+                .font(OracleTypeface.body(16))
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
@@ -72,18 +73,17 @@ struct CastingHomeView: View {
         TextField("可书一事，亦可默问。", text: $question, axis: .vertical)
             .lineLimit(3...5)
             .textFieldStyle(.plain)
-            .font(.body)
+            .font(OracleTypeface.body(16))
             .tint(cinnabar)
-            .padding(12)
-            .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 18)
+            .frame(maxWidth: .infinity, minHeight: 112, alignment: .topLeading)
             .accessibilityLabel("所书之事")
             .accessibilityHint("可书一事，亦可默问。")
             .accessibilityIdentifier("casting.question")
-        .background {
-            smallPanelFrameSurface
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .modifier(InputPanelChrome())
+            .background {
+                smallPanelFrameSurface
+            }
     }
 
     private var castButton: some View {
@@ -97,7 +97,7 @@ struct CastingHomeView: View {
                     castButtonSurface
 
                     Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
-                        .font(.system(.headline, design: .serif))
+                        .font(OracleTypeface.headline(19))
                         .foregroundStyle(canCast ? actionText : .secondary)
                         .frame(maxWidth: .infinity, minHeight: 50)
                         .padding(.horizontal, 44)
@@ -124,23 +124,37 @@ struct CastingHomeView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
                 Text(isCasting ? "三钱既陈" : hasCompletedCasting ? "三钱已落" : "三钱静候")
-                    .font(.system(.headline, design: .serif))
+                    .font(OracleTypeface.headline(17))
                 Spacer()
                 Text(coinStageLabel)
-                    .font(.caption)
+                    .font(OracleTypeface.caption(12))
                     .foregroundStyle(.secondary)
             }
 
-            HStack(spacing: 16) {
-                ForEach(Array(currentCoinFaces.enumerated()), id: \.offset) { index, face in
-                    CoinView(
-                        face: face,
-                        spinAngle: isCasting ? coinSpinAngle + Double(index * 34) : 0,
-                        dropProgress: coinDropProgress,
-                        horizontalJitter: coinJitter(for: index),
-                        restingTilt: coinRestingTilt(for: index),
-                        isAnimating: isCasting
-                    )
+            ZStack {
+                HStack {
+                    coinCloud
+                        .frame(width: 34, height: 15)
+                        .opacity(0.56)
+                    Spacer()
+                    coinCloud
+                        .scaleEffect(x: -1)
+                        .frame(width: 34, height: 15)
+                        .opacity(0.56)
+                }
+                .padding(.horizontal, 22)
+
+                HStack(spacing: 16) {
+                    ForEach(Array(currentCoinFaces.enumerated()), id: \.offset) { index, face in
+                        CoinView(
+                            face: face,
+                            spinAngle: isCasting ? coinSpinAngle + Double(index * 34) : 0,
+                            dropProgress: coinDropProgress,
+                            horizontalJitter: coinJitter(for: index),
+                            restingTilt: coinRestingTilt(for: index),
+                            isAnimating: isCasting
+                        )
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
@@ -149,7 +163,7 @@ struct CastingHomeView: View {
             coinLandingLine
 
             Text(isCasting ? "缓落一回，成爻一位；六爻具，则卦象成。" : "三枚铜钱常驻于此，取卦后逐爻落定。")
-                .font(.caption)
+                .font(OracleTypeface.caption(12))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
         }
@@ -158,15 +172,15 @@ struct CastingHomeView: View {
     }
 
     private var hexagramStage: some View {
-        VStack(alignment: .leading, spacing: 13) {
+        VStack(alignment: .leading, spacing: 11) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("本卦")
-                        .font(.system(.headline, design: .serif))
+                        .font(OracleTypeface.headline(17))
                         .foregroundStyle(resultPrimaryText)
 
                     Text(hasCompletedCasting ? originalStructureText : "六爻待成")
-                        .font(.caption)
+                        .font(OracleTypeface.caption(12))
                         .foregroundStyle(resultSecondaryText)
                         .padding(.horizontal, 9)
                         .padding(.vertical, 4)
@@ -178,18 +192,20 @@ struct CastingHomeView: View {
 
                 VStack(alignment: .trailing, spacing: 5) {
                     Text("变爻")
-                        .font(.caption)
+                        .font(OracleTypeface.caption(12))
                         .foregroundStyle(resultSecondaryText)
                     HStack(spacing: 5) {
                         Text(movingLinesSummary)
-                            .font(.system(.caption, design: .serif))
+                            .font(OracleTypeface.caption(12))
                             .foregroundStyle(resultPrimaryText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.82)
                         Circle()
                             .fill(cinnabar)
                             .frame(width: 7, height: 7)
-                            .opacity(hasCompletedCasting && !castingMovingLineNumbers.isEmpty ? 0.9 : 0.24)
+                            .opacity(
+                                hasCompletedCasting && !castingMovingLineNumbers.isEmpty
+                                    ? 0.9 : 0.24)
                     }
                 }
             }
@@ -201,24 +217,26 @@ struct CastingHomeView: View {
                     lines: displayLines,
                     revealedLineCount: previewRevealedLineCount,
                     movingColor: cinnabar,
-                    stableColor: hasCompletedCasting ? resultLineColor : resultLineColor.opacity(0.70),
+                    stableColor: hasCompletedCasting
+                        ? resultLineColor : resultLineColor.opacity(0.70),
                     isResultStyle: true
                 )
-                .frame(width: 176)
-                .padding(.vertical, 4)
+                .frame(width: 174)
+                .padding(.vertical, 2)
                 .sensoryFeedback(.selection, trigger: revealedLineCount)
 
                 Spacer(minLength: 2)
 
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(displayLines.enumerated().reversed()), id: \.offset) { index, line in
+                VStack(alignment: .leading, spacing: 7) {
+                    ForEach(Array(displayLines.enumerated().reversed()), id: \.offset) {
+                        index, line in
                         HStack(spacing: 6) {
                             Circle()
                                 .fill(line.isChanging ? cinnabar : resultLineColor.opacity(0.24))
                                 .frame(width: 5, height: 5)
                                 .opacity(index < previewRevealedLineCount ? 1 : 0.24)
                             Text(linePositionName(for: index, line: line))
-                                .font(.system(.caption, design: .serif))
+                                .font(OracleTypeface.caption(12))
                                 .foregroundStyle(line.isChanging ? cinnabar : resultSecondaryText)
                         }
                         .opacity(index < previewRevealedLineCount ? 1 : 0.36)
@@ -229,24 +247,27 @@ struct CastingHomeView: View {
                 Spacer(minLength: 0)
             }
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(hasCompletedCasting ? "卦象已成" : "卦象未起")
-                    .font(.system(size: hasCompletedCasting ? 28 : 24, weight: .semibold, design: .serif))
-                    .foregroundStyle(resultPrimaryText)
-                Text(hasCompletedCasting ? resultTrigramSummary : "静候三钱落定，再观上下卦与动爻。")
-                    .font(.system(size: 15, weight: .medium, design: .serif))
-                    .foregroundStyle(resultSecondaryText)
-                    .fixedSize(horizontal: false, vertical: true)
+            if hasCompletedCasting {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("卦象已成")
+                        .font(OracleTypeface.title(27))
+                        .foregroundStyle(resultPrimaryText)
+                    Text(resultTrigramSummary)
+                        .font(OracleTypeface.body(15))
+                        .foregroundStyle(resultSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.top, 2)
             }
         }
-        .padding(18)
-        .frame(maxWidth: .infinity)
-        .frame(minHeight: hasCompletedCasting ? 238 : 204)
+        .padding(.horizontal, 24)
+        .padding(.top, 22)
+        .padding(.bottom, 18)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .frame(height: hasCompletedCasting ? 292 : 226, alignment: .topLeading)
         .background {
             oraclePanelFrameSurface
         }
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .modifier(OrnatePanelChrome())
         .animation(.easeInOut(duration: 0.32), value: didPrepareCasting)
         .animation(.easeInOut(duration: 0.32), value: isCasting)
     }
@@ -254,7 +275,7 @@ struct CastingHomeView: View {
     private var analysisPanel: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("卦意初读")
-                .font(.system(.headline, design: .serif))
+                .font(OracleTypeface.headline(17))
 
             VStack(spacing: 12) {
                 AnalysisRow(title: "本卦", value: originalStructureText)
@@ -266,17 +287,16 @@ struct CastingHomeView: View {
                 .padding(.vertical, 2)
 
             Text("此处只作周易学习与自我反思的线索，不作确定判断。")
-                .font(.callout)
+                .font(OracleTypeface.body(15))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(22)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 22)
         .frame(maxWidth: .infinity)
         .background {
-            oraclePanelFrameSurface
+            analysisPanelFrameSurface
         }
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .modifier(OrnatePanelChrome())
     }
 
     private var canCast: Bool {
@@ -303,11 +323,16 @@ struct CastingHomeView: View {
             Image("PaperInkBackground")
                 .resizable()
                 .scaledToFill()
-                .opacity(colorScheme == .dark ? 0.32 : 1)
+                .opacity(0.26)
+                .accessibilityHidden(true)
+
+            Image("OraclePageWash")
+                .resizable(resizingMode: .stretch)
+                .opacity(0.92)
                 .accessibilityHidden(true)
 
             pageBackground
-                .opacity(colorScheme == .dark ? 0.76 : 0.08)
+                .opacity(0.05)
         }
         .ignoresSafeArea()
     }
@@ -331,7 +356,7 @@ struct CastingHomeView: View {
                 colors: [
                     Color.white.opacity(colorScheme == .dark ? 0.02 : 0.18),
                     Color.clear,
-                    paperJade.opacity(colorScheme == .dark ? 0.05 : 0.08)
+                    paperJade.opacity(colorScheme == .dark ? 0.05 : 0.08),
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -344,7 +369,7 @@ struct CastingHomeView: View {
         if canCast {
             Image("CastingButtonFrame")
                 .resizable(
-                    capInsets: EdgeInsets(top: 17, leading: 56, bottom: 17, trailing: 74),
+                    capInsets: EdgeInsets(top: 23, leading: 58, bottom: 23, trailing: 58),
                     resizingMode: .stretch
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -352,7 +377,7 @@ struct CastingHomeView: View {
         } else {
             Image("CastingButtonFrame")
                 .resizable(
-                    capInsets: EdgeInsets(top: 17, leading: 56, bottom: 17, trailing: 74),
+                    capInsets: EdgeInsets(top: 23, leading: 58, bottom: 23, trailing: 58),
                     resizingMode: .stretch
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -397,45 +422,48 @@ struct CastingHomeView: View {
     }
 
     private var oraclePanelFrameSurface: some View {
-        ZStack {
-            panelSurface
+        Image("OracleHexagramPanelFrame")
+            .resizable(
+                capInsets: EdgeInsets(top: 26, leading: 42, bottom: 26, trailing: 42),
+                resizingMode: .stretch
+            )
+            .accessibilityHidden(true)
+    }
 
-            Image("PaperInkBackground")
+    private var smallPanelFrameSurface: some View {
+        Image("OracleInputPanelFrame")
+            .resizable(
+                capInsets: EdgeInsets(top: 35, leading: 48, bottom: 38, trailing: 48),
+                resizingMode: .stretch
+            )
+            .accessibilityHidden(true)
+    }
+
+    private var analysisPanelFrameSurface: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Image("OracleAnalysisLandscapeWash")
                 .resizable()
-                .scaledToFill()
-                .opacity(colorScheme == .dark ? 0.04 : 0.08)
-                .blendMode(colorScheme == .dark ? .softLight : .multiply)
+                .scaledToFit()
+                .frame(width: 220)
+                .opacity(0.78)
+                .padding(.trailing, 6)
+                .padding(.bottom, 8)
+                .accessibilityHidden(true)
+
+            Image("OracleHexagramPanelFrame")
+                .resizable(
+                    capInsets: EdgeInsets(top: 26, leading: 42, bottom: 26, trailing: 42),
+                    resizingMode: .stretch
+                )
                 .accessibilityHidden(true)
         }
     }
 
-    private var smallPanelFrameSurface: some View {
-        ZStack {
-            panelSurface
-
-            LinearGradient(
-                colors: [
-                    Color.clear,
-                    YiyaoPalette.paperWash(colorScheme).opacity(0.10)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-
-            Image("PaperInkBackground")
-                .resizable()
-                .scaledToFill()
-                .opacity(0.045)
-                .blendMode(.multiply)
-                .mask(
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.75)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .accessibilityHidden(true)
-        }
+    private var coinCloud: some View {
+        Image("TinyCloudOrnament")
+            .resizable()
+            .scaledToFit()
+            .accessibilityHidden(true)
     }
 
     private var ceremonialDivider: some View {
@@ -478,7 +506,8 @@ struct CastingHomeView: View {
         guard let castingResult else {
             return "上下卦待成"
         }
-        return "上\(castingResult.upperTrigram.name)下\(castingResult.lowerTrigram.name)，\(castingResult.upperTrigram.imageName)\(castingResult.lowerTrigram.imageName)相承"
+        return
+            "上\(castingResult.upperTrigram.name)下\(castingResult.lowerTrigram.name)，\(castingResult.upperTrigram.imageName)\(castingResult.lowerTrigram.imageName)相承"
     }
 
     private var originalStructureText: String {
@@ -495,7 +524,8 @@ struct CastingHomeView: View {
         guard !castingResult.movingLineNumbers.isEmpty else {
             return "无动爻，与本卦同"
         }
-        return "上\(castingResult.changedUpperTrigram.name)下\(castingResult.changedLowerTrigram.name)"
+        return
+            "上\(castingResult.changedUpperTrigram.name)下\(castingResult.changedLowerTrigram.name)"
     }
 
     private var movingLinesText: String {
@@ -517,7 +547,8 @@ struct CastingHomeView: View {
         guard !movingLineNumbers.isEmpty else {
             return "无"
         }
-        return movingLineNumbers
+        return
+            movingLineNumbers
             .map { linePositionName(for: $0 - 1, line: displayLines[$0 - 1]) }
             .joined(separator: "、")
     }
@@ -595,9 +626,10 @@ struct CastingHomeView: View {
                 await MainActor.run {
                     withAnimation(.easeInOut(duration: 0.22)) {
                         coinSpinAngle += 180
-                        currentCoinFaces = spin.isMultiple(of: 2)
-                        ? [.tails, .heads, .tails]
-                        : [.heads, .tails, .heads]
+                        currentCoinFaces =
+                            spin.isMultiple(of: 2)
+                            ? [.tails, .heads, .tails]
+                            : [.heads, .tails, .heads]
                     }
                 }
             }
@@ -637,6 +669,56 @@ struct CastingHomeView: View {
 private enum CastingScrollTarget {
     static let result = "casting.result"
     static let analysis = "casting.analysis"
+}
+
+private enum OracleTypeface {
+    private static let regularName = firstAvailableFont([
+        "SongtiSC-Regular",
+        "STSongti-SC-Regular",
+        "Songti SC Regular",
+    ])
+    private static let boldName = firstAvailableFont([
+        "SongtiSC-Bold",
+        "STSongti-SC-Bold",
+        "Songti SC Bold",
+    ])
+    private static let lightName = firstAvailableFont([
+        "SongtiSC-Light",
+        "STSongti-SC-Light",
+        "Songti SC Light",
+    ])
+
+    static func title(_ size: CGFloat) -> Font {
+        make(boldName, size: size, relativeTo: .title, fallbackWeight: .semibold)
+    }
+
+    static func headline(_ size: CGFloat) -> Font {
+        make(regularName ?? boldName, size: size, relativeTo: .headline, fallbackWeight: .medium)
+    }
+
+    static func body(_ size: CGFloat) -> Font {
+        make(regularName, size: size, relativeTo: .body, fallbackWeight: .regular)
+    }
+
+    static func caption(_ size: CGFloat) -> Font {
+        make(lightName ?? regularName, size: size, relativeTo: .caption, fallbackWeight: .regular)
+    }
+
+    private static func make(
+        _ name: String?,
+        size: CGFloat,
+        relativeTo textStyle: Font.TextStyle,
+        fallbackWeight: Font.Weight
+    ) -> Font {
+        guard let name else {
+            return .system(size: size, weight: fallbackWeight, design: .serif)
+        }
+        return .custom(name, size: size, relativeTo: textStyle)
+    }
+
+    private static func firstAvailableFont(_ names: [String]) -> String? {
+        names.first { UIFont(name: $0, size: 16) != nil }
+    }
 }
 
 private struct InputPanelChrome: ViewModifier {
@@ -799,7 +881,7 @@ private struct HexagramPreviewView: View {
     let isResultStyle: Bool
 
     var body: some View {
-        VStack(spacing: isResultStyle ? 13 : 11) {
+        VStack(spacing: isResultStyle ? 9 : 11) {
             ForEach(Array(lines.enumerated().reversed()), id: \.offset) { index, line in
                 HexagramLineView(
                     line: line,
@@ -807,9 +889,9 @@ private struct HexagramPreviewView: View {
                     stableColor: stableColor,
                     isResultStyle: isResultStyle
                 )
-                    .opacity(index < revealedLineCount ? 1 : (isResultStyle ? 0 : 0.18))
-                    .scaleEffect(index < revealedLineCount ? 1 : 0.96)
-                    .accessibilityLabel(line.title)
+                .opacity(index < revealedLineCount ? 1 : (isResultStyle ? 0 : 0.18))
+                .scaleEffect(index < revealedLineCount ? 1 : 0.96)
+                .accessibilityLabel(line.title)
             }
         }
         .frame(maxWidth: isResultStyle ? 230 : 250)
@@ -834,7 +916,7 @@ private struct HexagramLineView: View {
                 }
             }
         }
-        .frame(height: isResultStyle ? 10 : 9)
+        .frame(height: isResultStyle ? 8 : 9)
         .foregroundStyle(lineColor)
     }
 
@@ -856,7 +938,7 @@ private struct AnalysisRow: View {
                 .foregroundStyle(.secondary)
             Spacer()
             Text(value)
-                .font(.system(.body, design: .serif))
+                .font(OracleTypeface.body(16))
                 .fontWeight(.medium)
                 .multilineTextAlignment(.trailing)
         }
