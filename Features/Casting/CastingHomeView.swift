@@ -30,6 +30,9 @@ struct CastingHomeView: View {
                             analysisPanel
                                 .id(CastingScrollTarget.analysis)
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
+                            Color.clear
+                                .frame(height: 112)
+                                .id(CastingScrollTarget.analysisBottomSpacer)
                         }
 
                     }
@@ -47,7 +50,7 @@ struct CastingHomeView: View {
                     guard !newValue, hasCompletedCasting else {
                         return
                     }
-                    scrollToResult(in: scrollProxy)
+                    scrollToCompletedReading(in: scrollProxy)
                 }
                 .background(appBackground)
             }
@@ -101,6 +104,15 @@ struct CastingHomeView: View {
                         .foregroundStyle(canCast ? actionText : .secondary)
                         .frame(maxWidth: .infinity, minHeight: 50)
                         .padding(.horizontal, 44)
+
+                    Image("CastingButtonDot")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 12, height: 12)
+                        .opacity(canCast ? 1 : 0.42)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .padding(.trailing, 37)
+                        .accessibilityHidden(true)
                 }
                 .frame(maxWidth: 306)
                 .frame(height: 50)
@@ -144,7 +156,7 @@ struct CastingHomeView: View {
                 }
                 .padding(.horizontal, 22)
 
-                HStack(spacing: 16) {
+                HStack(spacing: 18) {
                     ForEach(Array(currentCoinFaces.enumerated()), id: \.offset) { index, face in
                         CoinView(
                             face: face,
@@ -156,9 +168,10 @@ struct CastingHomeView: View {
                         )
                     }
                 }
+                .padding(.horizontal, 10)
             }
             .frame(maxWidth: .infinity)
-            .frame(minHeight: 58)
+            .frame(minHeight: 66)
 
             coinLandingLine
 
@@ -264,7 +277,7 @@ struct CastingHomeView: View {
         .padding(.top, 22)
         .padding(.bottom, 18)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: hasCompletedCasting ? 292 : 226, alignment: .topLeading)
+        .frame(height: hasCompletedCasting ? 266 : 226, alignment: .topLeading)
         .background {
             oraclePanelFrameSurface
         }
@@ -292,7 +305,8 @@ struct CastingHomeView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 24)
-        .padding(.vertical, 22)
+        .padding(.top, 22)
+        .padding(.bottom, 18)
         .frame(maxWidth: .infinity)
         .background {
             analysisPanelFrameSurface
@@ -422,9 +436,9 @@ struct CastingHomeView: View {
     }
 
     private var oraclePanelFrameSurface: some View {
-        Image("OracleHexagramPanelFrame")
+        Image("OracleInputPanelFrame")
             .resizable(
-                capInsets: EdgeInsets(top: 26, leading: 42, bottom: 26, trailing: 42),
+                capInsets: EdgeInsets(top: 35, leading: 48, bottom: 38, trailing: 48),
                 resizingMode: .stretch
             )
             .accessibilityHidden(true)
@@ -444,15 +458,15 @@ struct CastingHomeView: View {
             Image("OracleAnalysisLandscapeWash")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 220)
-                .opacity(0.78)
+                .frame(width: 206)
+                .opacity(0.58)
                 .padding(.trailing, 6)
                 .padding(.bottom, 8)
                 .accessibilityHidden(true)
 
-            Image("OracleHexagramPanelFrame")
+            Image("OracleInputPanelFrame")
                 .resizable(
-                    capInsets: EdgeInsets(top: 26, leading: 42, bottom: 26, trailing: 42),
+                    capInsets: EdgeInsets(top: 35, leading: 48, bottom: 38, trailing: 48),
                     resizingMode: .stretch
                 )
                 .accessibilityHidden(true)
@@ -592,8 +606,10 @@ struct CastingHomeView: View {
         revealedLineCount = reduceMotion ? result.originalLines.count : 0
         currentCoinFaces = [.heads, .tails, .heads]
         coinDropProgress = 1
+        coinSpinAngle = 0
 
         guard !reduceMotion else {
+            currentCoinFaces = result.coinThrows.last?.faces ?? currentCoinFaces
             isCasting = false
             return
         }
@@ -616,16 +632,17 @@ struct CastingHomeView: View {
             }
 
             await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.78)) {
+                withAnimation(.easeOut(duration: 0.58)) {
                     coinDropProgress = 1
+                    coinSpinAngle += 95
                 }
             }
 
-            for spin in 0..<3 {
-                try? await Task.sleep(nanoseconds: 190_000_000)
+            for spin in 0..<2 {
+                try? await Task.sleep(nanoseconds: 150_000_000)
                 await MainActor.run {
-                    withAnimation(.easeInOut(duration: 0.22)) {
-                        coinSpinAngle += 180
+                    withAnimation(.easeInOut(duration: 0.20)) {
+                        coinSpinAngle += 125
                         currentCoinFaces =
                             spin.isMultiple(of: 2)
                             ? [.tails, .heads, .tails]
@@ -635,20 +652,20 @@ struct CastingHomeView: View {
             }
 
             await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.34)) {
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.74)) {
                     currentCoinFaces = throwSnapshot[index].faces
-                    coinSpinAngle += 90
+                    coinSpinAngle += 28
                 }
             }
 
-            try? await Task.sleep(nanoseconds: 520_000_000)
+            try? await Task.sleep(nanoseconds: 320_000_000)
             await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.52)) {
+                withAnimation(.easeInOut(duration: 0.38)) {
                     revealedLineCount = index + 1
                 }
             }
 
-            try? await Task.sleep(nanoseconds: 360_000_000)
+            try? await Task.sleep(nanoseconds: 240_000_000)
         }
 
         await MainActor.run {
@@ -656,11 +673,11 @@ struct CastingHomeView: View {
         }
     }
 
-    private func scrollToResult(in proxy: ScrollViewProxy) {
+    private func scrollToCompletedReading(in proxy: ScrollViewProxy) {
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: reduceMotion ? 80_000_000 : 180_000_000)
+            try? await Task.sleep(nanoseconds: reduceMotion ? 80_000_000 : 220_000_000)
             withAnimation(.easeInOut(duration: reduceMotion ? 0.01 : 0.48)) {
-                proxy.scrollTo(CastingScrollTarget.result, anchor: .top)
+                proxy.scrollTo(CastingScrollTarget.analysisBottomSpacer, anchor: .bottom)
             }
         }
     }
@@ -669,6 +686,7 @@ struct CastingHomeView: View {
 private enum CastingScrollTarget {
     static let result = "casting.result"
     static let analysis = "casting.analysis"
+    static let analysisBottomSpacer = "casting.analysisBottomSpacer"
 }
 
 private enum OracleTypeface {
@@ -803,8 +821,6 @@ private struct PanelCorner: View {
 }
 
 private struct CoinView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     let face: CoinFace
     let spinAngle: Double
     let dropProgress: Double
@@ -813,52 +829,28 @@ private struct CoinView: View {
     let isAnimating: Bool
 
     var body: some View {
-        ZStack {
-            Image(faceImageName)
-                .resizable()
-                .scaledToFit()
-                .opacity(1 - edgePresence)
-                .rotation3DEffect(.degrees(spinAngle), axis: (x: 0, y: 1, z: 0), perspective: 0.72)
-
-            Image("CoinEdge")
-                .resizable()
-                .scaledToFit()
-                .opacity(edgePresence)
-        }
-        .frame(width: 66, height: 66)
-        .rotationEffect(.degrees(restingRotation))
-        .saturation(0.92)
-        .brightness(0.0)
-        .offset(
-            x: horizontalJitter * (1 - dropProgress),
-            y: -68 * (1 - dropProgress)
-        )
-        .scaleEffect(0.82 + 0.18 * dropProgress)
-        .opacity(0.18 + 0.82 * dropProgress)
-        .blur(radius: 1.2 * (1 - dropProgress))
-        .shadow(color: coinShadow, radius: 8, y: 4)
-        .accessibilityLabel(face == .heads ? "铜钱正面" : "铜钱背面")
+        Image(face == .heads ? "CoinFront" : "CoinBack")
+            .resizable()
+            .scaledToFit()
+            .padding(2)
+            .frame(width: 68, height: 68)
+            .contentShape(Rectangle())
+            .rotationEffect(.degrees(displayRotation))
+            .saturation(0.95)
+            .offset(
+                x: horizontalJitter * (1 - dropProgress),
+                y: -52 * (1 - dropProgress)
+            )
+            .scaleEffect(0.90 + 0.10 * dropProgress)
+            .opacity(0.34 + 0.66 * dropProgress)
+            .blur(radius: 0.6 * (1 - dropProgress))
+            .shadow(color: coinShadow, radius: 8, y: 4)
+            .accessibilityLabel(face == .heads ? "铜钱正面" : "铜钱背面")
     }
 
-    private var faceImageName: String {
-        guard isAnimating, dropProgress > 0.96, edgePresence < 0.18 else {
-            return face == .heads ? "CoinFront" : "CoinBack"
-        }
-
-        return face == .heads ? "CoinFrontOblique" : "CoinBackOblique"
-    }
-
-    private var normalizedSpin: Double {
-        let value = spinAngle.truncatingRemainder(dividingBy: 360)
-        return value >= 0 ? value : value + 360
-    }
-
-    private var edgePresence: Double {
-        let distanceToSide = min(
-            abs(normalizedSpin - 90),
-            abs(normalizedSpin - 270)
-        )
-        return max(0, min(1, 1 - distanceToSide / 34))
+    private var displayRotation: Double {
+        let spin = isAnimating ? spinAngle : 0
+        return spin + restingRotation
     }
 
     private var restingRotation: Double {
