@@ -10,49 +10,62 @@ struct SettingsView: View {
     @State private var isShowingClearConfirmation = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                SettingsPanel(title: "本机自守", message: SettingsCopy.privacyBody)
-                SettingsPanel(title: "卦象边界", message: SettingsCopy.disclaimerBody)
+        GeometryReader { geometry in
+            ZStack {
+                paperBackground
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("旧录")
-                        .font(.system(.headline, design: .serif))
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("设置")
+                            .font(.system(size: 34, weight: .semibold, design: .serif))
+                            .foregroundStyle(YiyaoPalette.ink(colorScheme))
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Button(role: .destructive) {
-                        isShowingClearConfirmation = true
-                    } label: {
-                        HStack {
-                            Text("清去本机旧录")
-                                .font(.system(.body, design: .serif))
-                            Spacer()
-                            Image(systemName: "trash")
+                        SettingsPanel(title: "本机自守", message: SettingsCopy.privacyBody)
+                        SettingsPanel(title: "卦象边界", message: SettingsCopy.disclaimerBody)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("旧录")
+                                .font(.system(.headline, design: .serif))
+
+                            Button(role: .destructive) {
+                                isShowingClearConfirmation = true
+                            } label: {
+                                HStack {
+                                    Text("清去本机旧录")
+                                        .font(.system(.body, design: .serif))
+                                    Spacer()
+                                    Image(systemName: "trash")
+                                }
+                                .padding(.horizontal, 14)
+                                .frame(height: 48)
+                                .background(YiyaoPalette.cinnabar(colorScheme).opacity(colorScheme == .dark ? 0.16 : 0.08))
+                                .foregroundStyle(YiyaoPalette.cinnabar(colorScheme))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .strokeBorder(YiyaoPalette.cinnabar(colorScheme).opacity(colorScheme == .dark ? 0.34 : 0.20))
+                                }
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .padding(.horizontal, 14)
-                        .frame(height: 48)
-                        .background(YiyaoPalette.cinnabar(colorScheme).opacity(colorScheme == .dark ? 0.16 : 0.08))
-                        .foregroundStyle(YiyaoPalette.cinnabar(colorScheme))
+                        .padding(16)
+                        .background {
+                            panelSurface
+                        }
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay {
                             RoundedRectangle(cornerRadius: 8)
-                                .strokeBorder(YiyaoPalette.cinnabar(colorScheme).opacity(colorScheme == .dark ? 0.34 : 0.20))
+                                .strokeBorder(panelBorder)
                         }
                     }
-                    .buttonStyle(.plain)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 26)
+                    .padding(.bottom, 32)
+                    .frame(minHeight: geometry.size.height, alignment: .top)
                 }
-                .padding(16)
-                .background {
-                    panelSurface
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(panelBorder)
-                }
+                .scrollContentBackground(.hidden)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-            .padding(.bottom, 32)
         }
         .background(paperBackground)
         .confirmationDialog("清去本机旧录", isPresented: $isShowingClearConfirmation) {

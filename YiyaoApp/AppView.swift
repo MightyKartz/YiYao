@@ -5,24 +5,84 @@ struct AppView: View {
     @State private var selectedTab: AppTab = .casting
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            ForEach(AppTab.allCases) { tab in
-                NavigationStack {
-                    tab.content
-                        .navigationTitle(tab.navigationTitle)
-                        .toolbar(tab == .casting ? .hidden : .automatic, for: .navigationBar)
+        ZStack {
+            TabView(selection: $selectedTab) {
+                ForEach(AppTab.allCases) { tab in
+                    NavigationStack {
+                        tab.content
+                            .navigationTitle(tab.navigationTitle)
+                            .toolbar(.hidden, for: .navigationBar)
+                            .toolbar(.hidden, for: .tabBar)
+                    }
+                    .tabItem { tab.label }
+                    .tag(tab)
+                    .accessibilityIdentifier(tab.accessibilityIdentifier)
                 }
-                .tabItem { tab.label }
-                .tag(tab)
-                .accessibilityIdentifier(tab.accessibilityIdentifier)
             }
+            .toolbar(.hidden, for: .tabBar)
         }
         .tint(YiyaoPalette.tabTint(colorScheme))
+        .safeAreaInset(edge: .bottom) {
+            YiYaoBottomTabBar(selectedTab: $selectedTab)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 8)
+        }
+        .background(YiyaoPalette.paperBase(colorScheme).ignoresSafeArea())
+        .preferredColorScheme(.light)
     }
 }
 
 #Preview {
     AppView()
+}
+
+private struct YiYaoBottomTabBar: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Binding var selectedTab: AppTab
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(AppTab.allCases) { tab in
+                Button {
+                    selectedTab = tab
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: tab.systemImage)
+                            .font(.system(size: 21, weight: selectedTab == tab ? .semibold : .regular))
+                            .frame(width: 28, height: 24)
+                        Text(tab.title)
+                            .font(.system(size: 12, weight: selectedTab == tab ? .medium : .regular, design: .serif))
+                    }
+                    .foregroundStyle(selectedTab == tab ? YiyaoPalette.grayGreen(colorScheme) : YiyaoPalette.ink(colorScheme).opacity(0.74))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(tab.title)
+                .accessibilityIdentifier(tab.accessibilityIdentifier)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background {
+            ZStack {
+                YiyaoPalette.panelBase(colorScheme).opacity(0.94)
+                Image("PaperPanelTexture")
+                    .resizable()
+                    .scaledToFill()
+                    .opacity(0.18)
+                    .blendMode(.multiply)
+                    .accessibilityHidden(true)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 30))
+        .overlay {
+            RoundedRectangle(cornerRadius: 30)
+                .strokeBorder(YiyaoPalette.panelBorder(colorScheme).opacity(0.70), lineWidth: 1)
+        }
+        .shadow(color: Color(red: 0.34, green: 0.31, blue: 0.22).opacity(0.10), radius: 14, y: 6)
+    }
 }
 
 enum YiyaoPalette {
