@@ -91,23 +91,28 @@ struct CastingHomeView: View {
             beginCasting()
         } label: {
             ZStack {
-                castButtonSurface
+                Color.clear
 
-                Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
-                    .font(.system(.headline, design: .serif))
-                    .foregroundStyle(canCast ? actionText : .secondary)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .padding(.horizontal, 44)
+                ZStack {
+                    castButtonSurface
+
+                    Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
+                        .font(.system(.headline, design: .serif))
+                        .foregroundStyle(canCast ? actionText : .secondary)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .padding(.horizontal, 44)
+                }
+                .frame(maxWidth: 306)
+                .frame(height: 50)
+                .shadow(color: actionShadow, radius: 7, y: 3)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 56)
+            .frame(height: 58)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(CeremonialPressButtonStyle())
         .disabled(!canCast)
         .frame(maxWidth: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: actionShadow, radius: 10, y: 4)
         .contentShape(Rectangle())
         .animation(.easeOut(duration: 0.16), value: canCast)
         .accessibilityLabel(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
@@ -130,10 +135,11 @@ struct CastingHomeView: View {
                 ForEach(Array(currentCoinFaces.enumerated()), id: \.offset) { index, face in
                     CoinView(
                         face: face,
-                        spinAngle: coinSpinAngle + Double(index * 34),
+                        spinAngle: isCasting ? coinSpinAngle + Double(index * 34) : 0,
                         dropProgress: coinDropProgress,
                         horizontalJitter: coinJitter(for: index),
-                        restingTilt: coinRestingTilt(for: index)
+                        restingTilt: coinRestingTilt(for: index),
+                        isAnimating: isCasting
                     )
                 }
             }
@@ -407,12 +413,27 @@ struct CastingHomeView: View {
         ZStack {
             panelSurface
 
-            Image("OracleSmallPanelFrame")
-                .resizable(
-                    capInsets: EdgeInsets(top: 16, leading: 48, bottom: 16, trailing: 48),
-                    resizingMode: .stretch
+            LinearGradient(
+                colors: [
+                    Color.clear,
+                    YiyaoPalette.paperWash(colorScheme).opacity(0.10)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            Image("PaperInkBackground")
+                .resizable()
+                .scaledToFill()
+                .opacity(0.045)
+                .blendMode(.multiply)
+                .mask(
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.75)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityHidden(true)
         }
     }
@@ -625,22 +646,17 @@ private struct InputPanelChrome: ViewModifier {
         content
             .overlay {
                 RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(YiyaoPalette.grayGreen(colorScheme).opacity(0.18), lineWidth: 1)
+                    .strokeBorder(YiyaoPalette.grayGreen(colorScheme).opacity(0.34), lineWidth: 1)
             }
-            .overlay(alignment: .top) {
-                Rectangle()
-                    .fill(YiyaoPalette.grayGreen(colorScheme).opacity(0.32))
-                    .frame(height: 1)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 1)
-            }
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(YiyaoPalette.grayGreen(colorScheme).opacity(0.24))
-                    .frame(height: 1)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 1)
-            }
+    }
+}
+
+private struct CeremonialPressButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .opacity(configuration.isPressed ? 0.92 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
@@ -712,6 +728,7 @@ private struct CoinView: View {
     let dropProgress: Double
     let horizontalJitter: CGFloat
     let restingTilt: Double
+    let isAnimating: Bool
 
     var body: some View {
         ZStack {
@@ -742,7 +759,7 @@ private struct CoinView: View {
     }
 
     private var faceImageName: String {
-        guard dropProgress > 0.96, edgePresence < 0.18 else {
+        guard isAnimating, dropProgress > 0.96, edgePresence < 0.18 else {
             return face == .heads ? "CoinFront" : "CoinBack"
         }
 
