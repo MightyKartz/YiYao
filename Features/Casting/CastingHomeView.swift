@@ -98,9 +98,12 @@ struct CastingHomeView: View {
                     Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
                         .font(.system(.headline, design: .serif))
 
-                    Circle()
-                        .fill(cinnabar.opacity(canCast ? 0.92 : 0.35))
-                        .frame(width: 7, height: 7)
+                    Image("CinnabarSealDot")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 9, height: 9)
+                        .opacity(canCast ? 0.88 : 0.34)
+                        .accessibilityHidden(true)
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 56)
@@ -130,6 +133,7 @@ struct CastingHomeView: View {
                 .opacity(canCast ? 1 : 0)
         }
         .shadow(color: actionShadow, radius: 12, y: 5)
+        .contentShape(RoundedRectangle(cornerRadius: 8))
         .buttonStyle(.plain)
         .disabled(!canCast)
         .animation(.easeOut(duration: 0.16), value: canCast)
@@ -159,7 +163,7 @@ struct CastingHomeView: View {
                         spinAngle: coinSpinAngle + Double(index * 34),
                         dropProgress: coinDropProgress,
                         horizontalJitter: coinJitter(for: index),
-                        cinnabar: cinnabar
+                        restingTilt: coinRestingTilt(for: index)
                     )
                 }
             }
@@ -228,6 +232,17 @@ struct CastingHomeView: View {
         .overlay {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(didPrepareCasting ? resultBorder : panelBorder)
+        }
+        .overlay(alignment: .topLeading) {
+            if hasCompletedCasting {
+                panelCornerAccent
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if hasCompletedCasting {
+                panelCornerAccent
+                    .scaleEffect(x: -1, y: 1)
+            }
         }
         .animation(.easeInOut(duration: 0.32), value: didPrepareCasting)
         .animation(.easeInOut(duration: 0.32), value: isCasting)
@@ -348,6 +363,15 @@ struct CastingHomeView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
+
+                Image("CastingButtonFrame")
+                    .resizable(
+                        capInsets: EdgeInsets(top: 38, leading: 96, bottom: 38, trailing: 96),
+                        resizingMode: .stretch
+                    )
+                    .opacity(colorScheme == .dark ? 0.05 : 0.18)
+                    .blendMode(.softLight)
+                    .accessibilityHidden(true)
             }
         } else {
             Color.secondary.opacity(0.18)
@@ -451,6 +475,17 @@ struct CastingHomeView: View {
         }
     }
 
+    private var panelCornerAccent: some View {
+        Image("PanelCornerAccent")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 42, height: 42)
+            .padding(8)
+            .opacity(colorScheme == .dark ? 0.08 : 0.16)
+            .blendMode(colorScheme == .dark ? .softLight : .multiply)
+            .accessibilityHidden(true)
+    }
+
     private var displayLines: [LineValue] {
         castingResult?.originalLines ?? placeholderLines
     }
@@ -500,6 +535,10 @@ struct CastingHomeView: View {
 
     private func coinJitter(for index: Int) -> CGFloat {
         [-22, 4, 18][index]
+    }
+
+    private func coinRestingTilt(for index: Int) -> Double {
+        [-8, 5, -3][index]
     }
 
     private func lineName(for index: Int) -> String {
@@ -600,40 +639,30 @@ private enum CastingScrollTarget {
 }
 
 private struct CoinView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let face: CoinFace
     let spinAngle: Double
     let dropProgress: Double
     let horizontalJitter: CGFloat
-    let cinnabar: Color
+    let restingTilt: Double
 
     var body: some View {
         ZStack {
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: coinColors,
-                        center: .topLeading,
-                        startRadius: 3,
-                        endRadius: 38
-                    )
-                )
+            Image(faceImageName)
+                .resizable()
+                .scaledToFit()
+                .opacity(1 - edgePresence)
 
-            Circle()
-                .strokeBorder(Color.black.opacity(0.18), lineWidth: 1)
-
-            Circle()
-                .strokeBorder(Color.white.opacity(0.34), lineWidth: 1)
-                .padding(7)
-
-            RoundedRectangle(cornerRadius: 2)
-                .fill(Color.black.opacity(0.18))
-                .frame(width: 15, height: 15)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 2)
-                        .stroke(Color.white.opacity(0.22), lineWidth: 1)
-                }
+            Image("CoinEdge")
+                .resizable()
+                .scaledToFit()
+                .opacity(edgePresence)
         }
-        .frame(width: 58, height: 58)
+        .frame(width: 64, height: 64)
+        .rotationEffect(.degrees(restingRotation))
+        .saturation(colorScheme == .dark ? 0.78 : 0.92)
+        .brightness(colorScheme == .dark ? -0.05 : 0.01)
         .offset(
             x: horizontalJitter * (1 - dropProgress),
             y: -68 * (1 - dropProgress)
@@ -642,25 +671,42 @@ private struct CoinView: View {
         .opacity(0.18 + 0.82 * dropProgress)
         .blur(radius: 1.2 * (1 - dropProgress))
         .rotation3DEffect(.degrees(spinAngle), axis: (x: 0, y: 1, z: 0), perspective: 0.72)
-        .shadow(color: Color.black.opacity(0.13), radius: 12, y: 7)
+        .shadow(color: coinShadow, radius: 10, y: 6)
         .accessibilityLabel(face == .heads ? "铜钱正面" : "铜钱背面")
     }
 
-    private var coinColors: [Color] {
-        switch face {
-        case .heads:
-            [
-                Color(red: 0.83, green: 0.63, blue: 0.33),
-                Color(red: 0.55, green: 0.36, blue: 0.18),
-                Color(red: 0.32, green: 0.21, blue: 0.12)
-            ]
-        case .tails:
-            [
-                Color(red: 0.66, green: 0.50, blue: 0.31),
-                Color(red: 0.40, green: 0.31, blue: 0.22),
-                cinnabar.opacity(0.75)
-            ]
+    private var faceImageName: String {
+        guard dropProgress > 0.96, edgePresence < 0.18 else {
+            return face == .heads ? "CoinFront" : "CoinBack"
         }
+
+        return face == .heads ? "CoinFrontOblique" : "CoinBackOblique"
+    }
+
+    private var normalizedSpin: Double {
+        let value = spinAngle.truncatingRemainder(dividingBy: 360)
+        return value >= 0 ? value : value + 360
+    }
+
+    private var edgePresence: Double {
+        let distanceToSide = min(
+            abs(normalizedSpin - 90),
+            abs(normalizedSpin - 270)
+        )
+        return max(0, min(1, 1 - distanceToSide / 34))
+    }
+
+    private var restingRotation: Double {
+        guard dropProgress > 0.96 else {
+            return 0
+        }
+        return restingTilt
+    }
+
+    private var coinShadow: Color {
+        colorScheme == .dark
+            ? Color.black.opacity(0.16)
+            : Color(red: 0.31, green: 0.25, blue: 0.16).opacity(0.14)
     }
 }
 
