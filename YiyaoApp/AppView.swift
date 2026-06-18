@@ -48,12 +48,19 @@ private struct YiYaoBottomTabBar: View {
                 } label: {
                     VStack(spacing: 4) {
                         Image(systemName: tab.systemImage)
-                            .font(.system(size: 21, weight: selectedTab == tab ? .semibold : .regular))
+                            .font(
+                                .system(size: 21, weight: selectedTab == tab ? .semibold : .regular)
+                            )
                             .frame(width: 28, height: 24)
                         Text(tab.title)
-                            .font(.system(size: 12, weight: selectedTab == tab ? .medium : .regular, design: .serif))
+                            .font(.custom("SongtiSC-Regular", size: 12, relativeTo: .caption))
+                            .fontWeight(selectedTab == tab ? .medium : .regular)
                     }
-                    .foregroundStyle(selectedTab == tab ? YiyaoPalette.grayGreen(colorScheme) : YiyaoPalette.ink(colorScheme).opacity(0.74))
+                    .foregroundStyle(
+                        selectedTab == tab
+                            ? YiyaoPalette.grayGreen(colorScheme)
+                            : YiyaoPalette.ink(colorScheme).opacity(0.74)
+                    )
                     .frame(maxWidth: .infinity)
                     .frame(height: 60)
                     .contentShape(Rectangle())
@@ -66,20 +73,13 @@ private struct YiYaoBottomTabBar: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
         .background {
-            ZStack {
-                YiyaoPalette.panelBase(colorScheme).opacity(0.94)
-                Image("PaperPanelTexture")
-                    .resizable()
-                    .scaledToFill()
-                    .opacity(0.18)
-                    .blendMode(.multiply)
-                    .accessibilityHidden(true)
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 30))
-        .overlay {
-            RoundedRectangle(cornerRadius: 30)
-                .strokeBorder(YiyaoPalette.panelBorder(colorScheme).opacity(0.70), lineWidth: 1)
+            Image("BottomNavCapsule")
+                .resizable(
+                    capInsets: EdgeInsets(top: 30, leading: 64, bottom: 30, trailing: 64),
+                    resizingMode: .stretch
+                )
+                .opacity(0.98)
+                .accessibilityHidden(true)
         }
         .shadow(color: Color(red: 0.34, green: 0.31, blue: 0.22).opacity(0.10), radius: 14, y: 6)
     }

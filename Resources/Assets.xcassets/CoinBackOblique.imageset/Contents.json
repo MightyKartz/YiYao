@@ -1,11 +1,11 @@
 {
   "images": [
     {
-      "filename": "coin-back-oblique.png",
       "idiom": "universal",
       "scale": "1x"
     },
     {
+      "filename": "coin-back-oblique.png",
       "idiom": "universal",
       "scale": "2x"
     },

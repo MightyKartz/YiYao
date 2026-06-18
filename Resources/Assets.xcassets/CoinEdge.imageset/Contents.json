@@ -1,11 +1,11 @@
 {
   "images": [
     {
-      "filename": "coin-edge.png",
       "idiom": "universal",
       "scale": "1x"
     },
     {
+      "filename": "coin-edge.png",
       "idiom": "universal",
       "scale": "2x"
     },
