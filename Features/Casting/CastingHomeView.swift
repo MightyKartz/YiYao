@@ -420,7 +420,7 @@ struct CastingHomeView: View {
     private var ceremonialDivider: some View {
         Image("CeremonialDivider")
             .resizable(
-                capInsets: EdgeInsets(top: 0, leading: 196, bottom: 0, trailing: 196),
+                capInsets: EdgeInsets(top: 0, leading: 72, bottom: 0, trailing: 72),
                 resizingMode: .stretch
             )
             .frame(height: 15)
@@ -682,7 +682,7 @@ private struct PanelDivider: View {
         GeometryReader { proxy in
             Image("CeremonialDivider")
                 .resizable(
-                    capInsets: EdgeInsets(top: 0, leading: 196, bottom: 0, trailing: 196),
+                    capInsets: EdgeInsets(top: 0, leading: 72, bottom: 0, trailing: 72),
                     resizingMode: .stretch
                 )
                 .frame(width: proxy.size.width, height: 8)
