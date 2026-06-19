@@ -79,6 +79,7 @@ private struct YiYaoBottomTabBar: View {
                     capInsets: EdgeInsets(top: 30, leading: 64, bottom: 30, trailing: 64),
                     resizingMode: .stretch
                 )
+                .saturation(0.72)
                 .opacity(0.98)
                 .accessibilityHidden(true)
         }
