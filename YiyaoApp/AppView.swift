@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct AppView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -53,7 +54,7 @@ private struct YiYaoBottomTabBar: View {
                             )
                             .frame(width: 28, height: 24)
                         Text(tab.title)
-                            .font(.custom("SongtiSC-Regular", size: 12, relativeTo: .caption))
+                            .font(BottomNavTypeface.caption(12))
                             .fontWeight(selectedTab == tab ? .medium : .regular)
                     }
                     .foregroundStyle(
@@ -82,6 +83,30 @@ private struct YiYaoBottomTabBar: View {
                 .accessibilityHidden(true)
         }
         .shadow(color: Color(red: 0.34, green: 0.31, blue: 0.22).opacity(0.10), radius: 14, y: 6)
+    }
+}
+
+private enum BottomNavTypeface {
+    private static let regularName = firstAvailableFont([
+        "KaitiSC-Regular",
+        "Kaiti SC Regular",
+        "Kaiti SC",
+        "STKaiti",
+        "STKaiti-SC-Regular",
+        "SongtiSC-Regular",
+        "STSongti-SC-Regular",
+        "Songti SC Regular",
+    ])
+
+    static func caption(_ size: CGFloat) -> Font {
+        guard let regularName else {
+            return .system(size: size, weight: .regular, design: .serif)
+        }
+        return .custom(regularName, size: size, relativeTo: .caption)
+    }
+
+    private static func firstAvailableFont(_ names: [String]) -> String? {
+        names.first { UIFont(name: $0, size: 12) != nil }
     }
 }
 

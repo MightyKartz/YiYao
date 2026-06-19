@@ -31,7 +31,7 @@ struct CastingHomeView: View {
                                 .id(CastingScrollTarget.analysis)
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
                             Color.clear
-                                .frame(height: 92)
+                                .frame(height: 1)
                                 .id(CastingScrollTarget.analysisBottomSpacer)
                         }
 
@@ -156,7 +156,7 @@ struct CastingHomeView: View {
                 }
                 .padding(.horizontal, 22)
 
-                HStack(spacing: 18) {
+                HStack(spacing: 14) {
                     ForEach(Array(currentCoinFaces.enumerated()), id: \.offset) { index, face in
                         CoinView(
                             face: face,
@@ -171,7 +171,7 @@ struct CastingHomeView: View {
                 .padding(.horizontal, 10)
             }
             .frame(maxWidth: .infinity)
-            .frame(minHeight: 66)
+            .frame(minHeight: 90)
 
             coinLandingLine
 
@@ -258,8 +258,6 @@ struct CastingHomeView: View {
                 .frame(width: 44, alignment: .leading)
                 .padding(.vertical, 4)
                 .padding(.horizontal, 5)
-                .background(Color.white.opacity(0.22))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
 
                 Spacer(minLength: 0)
             }
@@ -281,7 +279,7 @@ struct CastingHomeView: View {
         .padding(.top, 22)
         .padding(.bottom, hasCompletedCasting ? 22 : 18)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: hasCompletedCasting ? 286 : 226, alignment: .topLeading)
+        .frame(height: hasCompletedCasting ? 286 : 210, alignment: .topLeading)
         .background {
             oraclePanelFrameSurface
         }
@@ -332,25 +330,19 @@ struct CastingHomeView: View {
         return hasCompletedCasting ? "正反已定" : "未起卦"
     }
 
-    private var pageBackground: Color {
-        YiyaoPalette.paperBase(colorScheme)
-    }
-
     private var appBackground: some View {
         ZStack {
+            YiyaoPalette.paperBase(colorScheme)
+
             Image("PaperInkBackground")
                 .resizable()
                 .scaledToFill()
-                .opacity(0.18)
+                .opacity(colorScheme == .dark ? 0.22 : 0.72)
+                .blendMode(colorScheme == .dark ? .softLight : .multiply)
                 .accessibilityHidden(true)
 
-            Image("OraclePageWash")
-                .resizable(resizingMode: .stretch)
-                .opacity(0.82)
-                .accessibilityHidden(true)
-
-            pageBackground
-                .opacity(0.05)
+            YiyaoPalette.paperWash(colorScheme)
+                .opacity(colorScheme == .dark ? 0.34 : 0.10)
         }
         .ignoresSafeArea()
     }
@@ -440,40 +432,53 @@ struct CastingHomeView: View {
     }
 
     private var oraclePanelFrameSurface: some View {
-        Image("OracleInputPanelFrame")
-            .resizable(
-                capInsets: EdgeInsets(top: 35, leading: 48, bottom: 38, trailing: 48),
-                resizingMode: .stretch
-            )
-            .accessibilityHidden(true)
+        GeometryReader { proxy in
+            Image("OracleHexagramPanelFrame")
+                .resizable(
+                    capInsets: EdgeInsets(top: 28, leading: 42, bottom: 28, trailing: 42),
+                    resizingMode: .stretch
+                )
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .clipped()
+                .accessibilityHidden(true)
+        }
     }
 
     private var smallPanelFrameSurface: some View {
-        Image("OracleInputPanelFrame")
-            .resizable(
-                capInsets: EdgeInsets(top: 35, leading: 48, bottom: 38, trailing: 48),
-                resizingMode: .stretch
-            )
-            .accessibilityHidden(true)
-    }
-
-    private var analysisPanelFrameSurface: some View {
-        ZStack(alignment: .bottomTrailing) {
-            Image("OracleAnalysisLandscapeWash")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 188)
-                .opacity(0.36)
-                .padding(.trailing, 2)
-                .padding(.bottom, 4)
-                .accessibilityHidden(true)
-
+        GeometryReader { proxy in
             Image("OracleInputPanelFrame")
                 .resizable(
                     capInsets: EdgeInsets(top: 35, leading: 48, bottom: 38, trailing: 48),
                     resizingMode: .stretch
                 )
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .clipped()
                 .accessibilityHidden(true)
+        }
+    }
+
+    private var analysisPanelFrameSurface: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .bottomTrailing) {
+                Image("OracleAnalysisLandscapeWash")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 188)
+                    .opacity(0.36)
+                    .padding(.trailing, 2)
+                    .padding(.bottom, 4)
+                    .accessibilityHidden(true)
+
+                Image("OracleInputPanelFrame")
+                    .resizable(
+                        capInsets: EdgeInsets(top: 35, leading: 48, bottom: 38, trailing: 48),
+                        resizingMode: .stretch
+                    )
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .accessibilityHidden(true)
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .clipped()
         }
     }
 
@@ -586,7 +591,7 @@ struct CastingHomeView: View {
     }
 
     private func coinJitter(for index: Int) -> CGFloat {
-        [-22, 4, 18][index]
+        [-14, 0, 10][index]
     }
 
     private func coinRestingTilt(for index: Int) -> Double {
@@ -709,16 +714,29 @@ private enum CastingScrollTarget {
 
 private enum OracleTypeface {
     private static let regularName = firstAvailableFont([
+        "KaitiSC-Regular",
+        "Kaiti SC Regular",
+        "Kaiti SC",
+        "STKaiti",
+        "STKaiti-SC-Regular",
         "SongtiSC-Regular",
         "STSongti-SC-Regular",
         "Songti SC Regular",
     ])
     private static let boldName = firstAvailableFont([
+        "KaitiSC-Bold",
+        "Kaiti SC Bold",
+        "STKaiti-SC-Bold",
+        "KaitiSC-Regular",
+        "Kaiti SC Regular",
         "SongtiSC-Bold",
         "STSongti-SC-Bold",
         "Songti SC Bold",
     ])
     private static let lightName = firstAvailableFont([
+        "KaitiSC-Regular",
+        "Kaiti SC Regular",
+        "STKaiti",
         "SongtiSC-Light",
         "STSongti-SC-Light",
         "Songti SC Light",
@@ -850,8 +868,7 @@ private struct CoinView: View {
         Image(face == .heads ? "CoinFront" : "CoinBack")
             .resizable()
             .scaledToFit()
-            .padding(2)
-            .frame(width: coinDiameter, height: coinDiameter)
+            .frame(width: 88, height: 88)
             .contentShape(Rectangle())
             .rotationEffect(.degrees(displayRotation))
             .saturation(0.95)
@@ -876,10 +893,6 @@ private struct CoinView: View {
             return 0
         }
         return restingTilt
-    }
-
-    private var coinDiameter: CGFloat {
-        face == .heads ? 66 : 68
     }
 
     private var coinShadow: Color {
