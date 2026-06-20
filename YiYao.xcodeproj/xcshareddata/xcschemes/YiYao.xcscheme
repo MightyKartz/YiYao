@@ -41,6 +41,17 @@
                ReferencedContainer = "container:YiYao.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "C40000000000000000000001"
+               BuildableName = "YiYaoUITests.xctest"
+               BlueprintName = "YiYaoUITests"
+               ReferencedContainer = "container:YiYao.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

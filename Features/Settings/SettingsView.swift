@@ -34,10 +34,13 @@ struct SettingsView: View {
                                 HStack {
                                     Text("清去本机旧录")
                                         .font(.system(.body, design: .serif))
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.82)
                                     Spacer()
                                     Image(systemName: "trash")
                                 }
                                 .padding(.horizontal, 14)
+                                .frame(maxWidth: .infinity)
                                 .frame(height: 48)
                                 .background(YiyaoPalette.cinnabar(colorScheme).opacity(colorScheme == .dark ? 0.16 : 0.08))
                                 .foregroundStyle(YiyaoPalette.cinnabar(colorScheme))
@@ -50,6 +53,7 @@ struct SettingsView: View {
                             .buttonStyle(.plain)
                         }
                         .padding(16)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .background {
                             panelSurface
                         }
@@ -59,6 +63,7 @@ struct SettingsView: View {
                                 .strokeBorder(panelBorder)
                         }
                     }
+                    .frame(width: max(0, geometry.size.width - 40), alignment: .topLeading)
                     .padding(.horizontal, 20)
                     .padding(.top, 26)
                     .padding(.bottom, 32)
@@ -132,9 +137,11 @@ private struct SettingsPanel: View {
             Text(message)
                 .font(.callout)
                 .foregroundStyle(YiyaoPalette.secondaryInk(colorScheme))
+                .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background {
             SettingsPanelSurface()
         }

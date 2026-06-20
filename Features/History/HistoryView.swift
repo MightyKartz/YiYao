@@ -43,6 +43,7 @@ struct HistoryView: View {
                                 .strokeBorder(panelBorder)
                         }
                     }
+                    .frame(width: max(0, geometry.size.width - 40), alignment: .topLeading)
                     .padding(.horizontal, 20)
                     .padding(.top, 26)
                     .padding(.bottom, 32)
