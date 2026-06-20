@@ -20,7 +20,7 @@ struct CastingHomeView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 ScrollView {
-                    VStack(spacing: 10) {
+                    VStack(spacing: 11) {
                         header
                         questionEditor
                         castButton
@@ -28,7 +28,6 @@ struct CastingHomeView: View {
                         hexagramStage
                             .id(CastingScrollTarget.result)
                         if hasCompletedCasting {
-                            resultCompletionStatus
                             analysisPanel
                                 .id(CastingScrollTarget.analysis)
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -81,8 +80,9 @@ struct CastingHomeView: View {
             .font(OracleTypeface.body(16))
             .tint(cinnabar)
             .padding(.horizontal, 20)
-            .padding(.vertical, 15)
-            .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading)
+            .padding(.top, 18)
+            .padding(.bottom, 16)
+            .frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
             .accessibilityLabel("所书之事")
             .accessibilityHint("可书一事，亦可默问。")
             .accessibilityIdentifier("casting.question")
@@ -106,12 +106,12 @@ struct CastingHomeView: View {
                             .font(OracleTypeface.headline(18))
                             .foregroundStyle(canCast ? actionText : .secondary)
 
-                        Image("CastingButtonDot")
+                        Image("CinnabarSealDot")
                             .resizable()
                             .antialiased(true)
                             .scaledToFit()
                             .aspectRatio(1, contentMode: .fit)
-                            .frame(width: 10, height: 10)
+                            .frame(width: 17, height: 17)
                             .opacity(canCast ? 1 : 0.42)
                             .accessibilityHidden(true)
                     }
@@ -137,7 +137,7 @@ struct CastingHomeView: View {
     }
 
     private var coinCeremonyStage: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 12) {
             ZStack {
                 HStack {
                     coinCloud
@@ -172,53 +172,49 @@ struct CastingHomeView: View {
                 .padding(.horizontal, 10)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 82)
+            .frame(height: 88)
 
             Text(isCasting ? "正反流转，逐爻落定。" : "三枚铜钱常驻于此，取卦后逐爻落定。")
                 .font(OracleTypeface.caption(12))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
         }
-        .padding(.vertical, 1)
+        .padding(.top, 1)
+        .padding(.bottom, 3)
         .frame(maxWidth: .infinity)
     }
 
     private var hexagramStage: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 5) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text("本卦")
-                        .font(OracleTypeface.headline(16))
+                        .font(OracleTypeface.headline(17))
                         .foregroundStyle(resultPrimaryText)
 
                     Text(hasCompletedCasting ? originalStructureText : "六爻待成")
-                        .font(OracleTypeface.caption(11))
+                        .font(OracleTypeface.caption(11.5))
                         .foregroundStyle(resultSecondaryText)
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 4)
-                        .background(YiyaoPalette.paperWash(colorScheme).opacity(0.18))
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(YiyaoPalette.paperWash(colorScheme).opacity(0.14))
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
 
                 Spacer(minLength: 12)
 
-                VStack(alignment: .trailing, spacing: 5) {
-                    Text("变爻")
-                        .font(OracleTypeface.caption(11))
-                        .foregroundStyle(resultSecondaryText)
-                    HStack(spacing: 5) {
-                        Text(movingLinesBadgeText)
-                            .font(OracleTypeface.caption(11))
-                            .foregroundStyle(resultPrimaryText)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.82)
-                        Circle()
-                            .fill(cinnabar)
-                            .frame(width: 7, height: 7)
-                            .opacity(
-                                hasCompletedCasting && !castingMovingLineNumbers.isEmpty
-                                    ? 0.9 : 0.24)
-                    }
+                HStack(spacing: 5) {
+                    Text("变爻：\(movingLinesBadgeText)")
+                        .font(OracleTypeface.caption(11.5))
+                        .foregroundStyle(resultPrimaryText.opacity(0.76))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.78)
+                    Circle()
+                        .fill(cinnabar)
+                        .frame(width: 7, height: 7)
+                        .opacity(
+                            hasCompletedCasting && !castingMovingLineNumbers.isEmpty
+                                ? 0.9 : 0.24)
                 }
             }
 
@@ -233,7 +229,7 @@ struct CastingHomeView: View {
                         ? resultLineColor : resultLineColor.opacity(0.70),
                     isResultStyle: true
                 )
-                .frame(width: 148)
+                .frame(width: 172)
                 .padding(.vertical, 0)
                 .sensoryFeedback(.selection, trigger: revealedLineCount)
 
@@ -261,12 +257,25 @@ struct CastingHomeView: View {
                 Spacer(minLength: 0)
             }
 
+            if hasCompletedCasting {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("卦象已成")
+                        .font(OracleTypeface.headline(16))
+                        .foregroundStyle(resultPrimaryText)
+                    Text(resultTrigramSummary)
+                        .font(OracleTypeface.caption(11.5))
+                        .foregroundStyle(resultSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.top, 1)
+            }
+
         }
         .padding(.horizontal, 24)
-        .padding(.top, 15)
-        .padding(.bottom, 12)
+        .padding(.top, 17)
+        .padding(.bottom, 14)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: 176, alignment: .topLeading)
+        .frame(height: hasCompletedCasting ? 204 : 184, alignment: .topLeading)
         .background {
             oraclePanelFrameSurface
         }
@@ -275,12 +284,12 @@ struct CastingHomeView: View {
     }
 
     private var analysisPanel: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 7) {
             Text("卦意初读")
-                .font(OracleTypeface.headline(15.5))
+                .font(OracleTypeface.headline(16))
 
             Text("本卦：\(originalStructureText)。动爻：\(movingLinesText)。")
-                .font(OracleTypeface.body(12.5))
+                .font(OracleTypeface.body(13))
                 .foregroundStyle(resultPrimaryText.opacity(0.82))
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -289,30 +298,13 @@ struct CastingHomeView: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.horizontal, 22)
-        .padding(.top, 13)
-        .padding(.bottom, 11)
-        .frame(maxWidth: .infinity, minHeight: 104, alignment: .topLeading)
+        .padding(.horizontal, 24)
+        .padding(.top, 15)
+        .padding(.bottom, 13)
+        .frame(maxWidth: .infinity, minHeight: 118, alignment: .topLeading)
         .background {
             analysisPanelFrameSurface
         }
-    }
-
-    private var resultCompletionStatus: some View {
-        VStack(alignment: .leading, spacing: 1) {
-            Text("卦象已成")
-                .font(OracleTypeface.headline(16))
-                .foregroundStyle(resultPrimaryText)
-
-            Text(resultTrigramSummary)
-                .font(OracleTypeface.caption(11.5))
-                .foregroundStyle(resultSecondaryText)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 24)
-        .padding(.top, 0)
-        .padding(.bottom, 1)
     }
 
     private var canCast: Bool {
@@ -397,20 +389,21 @@ struct CastingHomeView: View {
 
     private var oraclePanelFrameSurface: some View {
         GeometryReader { proxy in
-            Image("OracleHexagramAreaBorder")
-                .resizable(
-                    capInsets: EdgeInsets(top: 42, leading: 54, bottom: 42, trailing: 54),
-                    resizingMode: .stretch
-                )
-                .frame(width: proxy.size.width, height: proxy.size.height)
-                .clipped()
-                .saturation(0.34)
-                .opacity(0.62)
-                .accessibilityHidden(true)
+            ZStack {
+                panelPaperFill
+
+                oracleInputPanelBorder(proxy: proxy, saturation: 0.42, opacity: 0.82)
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .clipped()
         }
     }
 
     private var questionPanelSurface: some View {
+        oracleInputFrameSurface(saturation: 0.48, opacity: 0.92)
+    }
+
+    private func oracleInputFrameSurface(saturation: Double, opacity: Double) -> some View {
         GeometryReader { proxy in
             Image("OracleInputPanelFrame")
                 .resizable(
@@ -419,8 +412,8 @@ struct CastingHomeView: View {
                 )
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .clipped()
-                .saturation(0.48)
-                .opacity(0.92)
+                .saturation(saturation)
+                .opacity(opacity)
                 .accessibilityHidden(true)
         }
     }
@@ -428,27 +421,53 @@ struct CastingHomeView: View {
     private var analysisPanelFrameSurface: some View {
         GeometryReader { proxy in
             ZStack(alignment: .bottomTrailing) {
+                panelPaperFill
+
                 Image("OracleAnalysisLandscapeWash")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: min(210, proxy.size.width * 0.56))
-                    .opacity(0.22)
-                    .padding(.trailing, 2)
-                    .padding(.bottom, 3)
+                    .frame(width: min(300, proxy.size.width * 0.78))
+                    .opacity(0.34)
+                    .blendMode(colorScheme == .dark ? .softLight : .multiply)
+                    .padding(.trailing, 6)
+                    .padding(.bottom, 4)
                     .accessibilityHidden(true)
 
-                Image("OracleAnalysisAreaBorder")
-                    .resizable(
-                        capInsets: EdgeInsets(top: 42, leading: 54, bottom: 42, trailing: 54),
-                        resizingMode: .stretch
-                    )
-                    .frame(width: proxy.size.width, height: proxy.size.height)
-                    .saturation(0.34)
-                    .opacity(0.62)
-                    .accessibilityHidden(true)
+                oracleInputPanelBorder(proxy: proxy, saturation: 0.42, opacity: 0.82)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
+            .clipped()
         }
+    }
+
+    private var panelPaperFill: some View {
+        ZStack {
+            YiyaoPalette.panelBase(colorScheme)
+                .opacity(colorScheme == .dark ? 0.64 : 0.34)
+
+            Image("PaperPanelTexture")
+                .resizable()
+                .scaledToFill()
+                .opacity(colorScheme == .dark ? 0.08 : 0.12)
+                .blendMode(colorScheme == .dark ? .softLight : .multiply)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private func oracleInputPanelBorder(
+        proxy: GeometryProxy,
+        saturation: Double,
+        opacity: Double
+    ) -> some View {
+        Image("OracleInputPanelBorder")
+            .resizable(
+                capInsets: EdgeInsets(top: 52, leading: 62, bottom: 52, trailing: 62),
+                resizingMode: .stretch
+            )
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .saturation(saturation)
+            .opacity(opacity)
+            .accessibilityHidden(true)
     }
 
     private var coinCloud: some View {

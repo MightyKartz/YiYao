@@ -43,9 +43,11 @@ struct HistoryView: View {
                                 .strokeBorder(panelBorder)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
                     .padding(.horizontal, 20)
                     .padding(.top, 26)
                     .padding(.bottom, 32)
+                    .frame(width: geometry.size.width, alignment: .top)
                     .frame(minHeight: geometry.size.height, alignment: .top)
                 }
                 .scrollContentBackground(.hidden)
