@@ -47,15 +47,15 @@ private struct YiYaoBottomTabBar: View {
                 Button {
                     selectedTab = tab
                 } label: {
-                    VStack(spacing: 4) {
+                    VStack(spacing: 3) {
                         Image(systemName: tab.systemImage)
                             .font(
-                                .system(size: 21, weight: selectedTab == tab ? .semibold : .regular)
+                                .system(size: 20, weight: selectedTab == tab ? .medium : .regular)
                             )
-                            .frame(width: 28, height: 24)
+                            .frame(width: 28, height: 23)
                         Text(tab.title)
-                            .font(BottomNavTypeface.caption(12))
-                            .fontWeight(selectedTab == tab ? .medium : .regular)
+                            .font(BottomNavTypeface.caption(11.5))
+                            .fontWeight(.regular)
                     }
                     .foregroundStyle(
                         selectedTab == tab
@@ -63,7 +63,7 @@ private struct YiYaoBottomTabBar: View {
                             : YiyaoPalette.ink(colorScheme).opacity(0.74)
                     )
                     .frame(maxWidth: .infinity)
-                    .frame(height: 60)
+                    .frame(height: 56)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -72,18 +72,18 @@ private struct YiYaoBottomTabBar: View {
             }
         }
         .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+        .padding(.vertical, 5)
         .background {
             Image("BottomNavCapsule")
                 .resizable(
                     capInsets: EdgeInsets(top: 30, leading: 64, bottom: 30, trailing: 64),
                     resizingMode: .stretch
                 )
-                .saturation(0.72)
-                .opacity(0.98)
+                .saturation(0.46)
+                .opacity(0.94)
                 .accessibilityHidden(true)
         }
-        .shadow(color: Color(red: 0.34, green: 0.31, blue: 0.22).opacity(0.10), radius: 14, y: 6)
+        .shadow(color: Color(red: 0.34, green: 0.31, blue: 0.22).opacity(0.07), radius: 10, y: 4)
     }
 }
 

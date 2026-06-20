@@ -20,7 +20,7 @@ struct CastingHomeView: View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 ScrollView {
-                    VStack(spacing: hasCompletedCasting ? 8 : 10) {
+                    VStack(spacing: 10) {
                         header
                         questionEditor
                         castButton
@@ -28,6 +28,7 @@ struct CastingHomeView: View {
                         hexagramStage
                             .id(CastingScrollTarget.result)
                         if hasCompletedCasting {
+                            resultCompletionStatus
                             analysisPanel
                                 .id(CastingScrollTarget.analysis)
                                 .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -62,7 +63,7 @@ struct CastingHomeView: View {
     private var header: some View {
         VStack(spacing: 8) {
             Text("一事在心")
-                .font(OracleTypeface.title(30))
+                .font(OracleTypeface.title(29))
                 .foregroundStyle(ink)
 
             Text("缓书其事，静观其变。")
@@ -102,25 +103,27 @@ struct CastingHomeView: View {
 
                     HStack(spacing: 9) {
                         Text(isCasting ? "铜钱将落" : didPrepareCasting ? "再取一卦" : "三钱取卦")
-                            .font(OracleTypeface.headline(19))
+                            .font(OracleTypeface.headline(18))
                             .foregroundStyle(canCast ? actionText : .secondary)
 
                         Image("CastingButtonDot")
                             .resizable()
+                            .antialiased(true)
                             .scaledToFit()
-                            .frame(width: 11, height: 11)
+                            .aspectRatio(1, contentMode: .fit)
+                            .frame(width: 10, height: 10)
                             .opacity(canCast ? 1 : 0.42)
                             .accessibilityHidden(true)
                     }
                     .frame(maxWidth: .infinity, minHeight: 50)
                     .padding(.horizontal, 44)
                 }
-                .frame(maxWidth: 326)
-                .frame(height: 48)
-                .shadow(color: actionShadow, radius: 7, y: 3)
+                .frame(maxWidth: 318)
+                .frame(height: 46)
+                .shadow(color: actionShadow, radius: 5, y: 2)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 52)
+            .frame(height: 50)
             .contentShape(Rectangle())
         }
         .buttonStyle(CeremonialPressButtonStyle())
@@ -149,8 +152,8 @@ struct CastingHomeView: View {
                 .padding(.horizontal, 22)
 
                 GeometryReader { proxy in
-                    let coinSize = min(CGFloat(100), max(CGFloat(78), (proxy.size.width - 54) / 3))
-                    let spacing = min(CGFloat(14), max(CGFloat(7), (proxy.size.width - coinSize * 3) / 4))
+                    let coinSize = min(CGFloat(96), max(CGFloat(76), (proxy.size.width - 62) / 3))
+                    let spacing = min(CGFloat(18), max(CGFloat(10), (proxy.size.width - coinSize * 3) / 4))
 
                     HStack(spacing: spacing) {
                         ForEach(Array(currentCoinFaces.enumerated()), id: \.offset) { index, face in
@@ -185,11 +188,11 @@ struct CastingHomeView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("本卦")
-                        .font(OracleTypeface.headline(17))
+                        .font(OracleTypeface.headline(16))
                         .foregroundStyle(resultPrimaryText)
 
                     Text(hasCompletedCasting ? originalStructureText : "六爻待成")
-                        .font(OracleTypeface.caption(12))
+                        .font(OracleTypeface.caption(11))
                         .foregroundStyle(resultSecondaryText)
                         .padding(.horizontal, 9)
                         .padding(.vertical, 4)
@@ -201,11 +204,11 @@ struct CastingHomeView: View {
 
                 VStack(alignment: .trailing, spacing: 5) {
                     Text("变爻")
-                        .font(OracleTypeface.caption(12))
+                        .font(OracleTypeface.caption(11))
                         .foregroundStyle(resultSecondaryText)
                     HStack(spacing: 5) {
                         Text(movingLinesBadgeText)
-                            .font(OracleTypeface.caption(12))
+                            .font(OracleTypeface.caption(11))
                             .foregroundStyle(resultPrimaryText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.82)
@@ -230,7 +233,7 @@ struct CastingHomeView: View {
                         ? resultLineColor : resultLineColor.opacity(0.70),
                     isResultStyle: true
                 )
-                .frame(width: 174)
+                .frame(width: 148)
                 .padding(.vertical, 0)
                 .sensoryFeedback(.selection, trigger: revealedLineCount)
 
@@ -242,10 +245,10 @@ struct CastingHomeView: View {
                         HStack(spacing: 6) {
                             Circle()
                                 .fill(line.isChanging ? cinnabar : resultLineColor.opacity(0.24))
-                                .frame(width: 5, height: 5)
+                                .frame(width: 4.5, height: 4.5)
                                 .opacity(index < previewRevealedLineCount ? 1 : 0.24)
                             Text(linePositionName(for: index, line: line))
-                                .font(OracleTypeface.caption(11))
+                                .font(OracleTypeface.caption(10.5))
                                 .foregroundStyle(line.isChanging ? cinnabar : resultSecondaryText)
                         }
                         .opacity(index < previewRevealedLineCount ? 1 : 0.36)
@@ -258,24 +261,12 @@ struct CastingHomeView: View {
                 Spacer(minLength: 0)
             }
 
-            if hasCompletedCasting {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("卦象已成")
-                        .font(OracleTypeface.headline(19))
-                        .foregroundStyle(resultPrimaryText)
-                    Text(resultTrigramSummary)
-                        .font(OracleTypeface.caption(12))
-                        .foregroundStyle(resultSecondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.top, 0)
-            }
         }
         .padding(.horizontal, 24)
-        .padding(.top, 16)
-        .padding(.bottom, hasCompletedCasting ? 14 : 14)
+        .padding(.top, 15)
+        .padding(.bottom, 12)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: hasCompletedCasting ? 214 : 196, alignment: .topLeading)
+        .frame(height: 176, alignment: .topLeading)
         .background {
             oraclePanelFrameSurface
         }
@@ -284,27 +275,44 @@ struct CastingHomeView: View {
     }
 
     private var analysisPanel: some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("卦意初读")
-                .font(OracleTypeface.headline(17))
+                .font(OracleTypeface.headline(15.5))
 
             Text("本卦：\(originalStructureText)。动爻：\(movingLinesText)。")
-                .font(OracleTypeface.body(14))
+                .font(OracleTypeface.body(12.5))
                 .foregroundStyle(resultPrimaryText.opacity(0.82))
                 .fixedSize(horizontal: false, vertical: true)
 
             Text("此处只作周易学习与自我反思的线索，不作确定判断。")
-                .font(OracleTypeface.caption(12))
+                .font(OracleTypeface.caption(11.5))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 22)
-        .padding(.top, 14)
-        .padding(.bottom, 12)
-        .frame(maxWidth: .infinity, minHeight: 112, alignment: .topLeading)
+        .padding(.top, 13)
+        .padding(.bottom, 11)
+        .frame(maxWidth: .infinity, minHeight: 104, alignment: .topLeading)
         .background {
             analysisPanelFrameSurface
         }
+    }
+
+    private var resultCompletionStatus: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text("卦象已成")
+                .font(OracleTypeface.headline(16))
+                .foregroundStyle(resultPrimaryText)
+
+            Text(resultTrigramSummary)
+                .font(OracleTypeface.caption(11.5))
+                .foregroundStyle(resultSecondaryText)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 24)
+        .padding(.top, 0)
+        .padding(.bottom, 1)
     }
 
     private var canCast: Bool {
@@ -341,7 +349,8 @@ struct CastingHomeView: View {
                     resizingMode: .stretch
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .saturation(0.78)
+                .saturation(0.48)
+                .opacity(0.96)
                 .accessibilityHidden(true)
         } else {
             Image("CastingButtonFrame")
@@ -395,8 +404,8 @@ struct CastingHomeView: View {
                 )
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .clipped()
-                .saturation(0.62)
-                .opacity(0.76)
+                .saturation(0.34)
+                .opacity(0.62)
                 .accessibilityHidden(true)
         }
     }
@@ -410,8 +419,8 @@ struct CastingHomeView: View {
                 )
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .clipped()
-                .saturation(0.70)
-                .opacity(0.94)
+                .saturation(0.48)
+                .opacity(0.92)
                 .accessibilityHidden(true)
         }
     }
@@ -423,7 +432,7 @@ struct CastingHomeView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: min(210, proxy.size.width * 0.56))
-                    .opacity(0.28)
+                    .opacity(0.22)
                     .padding(.trailing, 2)
                     .padding(.bottom, 3)
                     .accessibilityHidden(true)
@@ -434,8 +443,8 @@ struct CastingHomeView: View {
                         resizingMode: .stretch
                     )
                     .frame(width: proxy.size.width, height: proxy.size.height)
-                    .saturation(0.62)
-                    .opacity(0.76)
+                    .saturation(0.34)
+                    .opacity(0.62)
                     .accessibilityHidden(true)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
@@ -694,11 +703,11 @@ private enum OracleTypeface {
     ])
 
     static func title(_ size: CGFloat) -> Font {
-        make(boldName, size: size, relativeTo: .title, fallbackWeight: .semibold)
+        make(regularName ?? boldName, size: size, relativeTo: .title, fallbackWeight: .medium)
     }
 
     static func headline(_ size: CGFloat) -> Font {
-        make(regularName ?? boldName, size: size, relativeTo: .headline, fallbackWeight: .medium)
+        make(regularName ?? boldName, size: size, relativeTo: .headline, fallbackWeight: .regular)
     }
 
     static func body(_ size: CGFloat) -> Font {
