@@ -185,7 +185,7 @@ struct CastingHomeView: View {
     }
 
     private var hexagramStage: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 9) {
             HStack(alignment: .top) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text("本卦")
@@ -219,7 +219,7 @@ struct CastingHomeView: View {
             }
 
             HStack(alignment: .center, spacing: 12) {
-                Spacer(minLength: 0)
+                Spacer(minLength: 2)
 
                 HexagramPreviewView(
                     lines: displayLines,
@@ -229,11 +229,11 @@ struct CastingHomeView: View {
                         ? resultLineColor : resultLineColor.opacity(0.70),
                     isResultStyle: true
                 )
-                .frame(width: 172)
+                .frame(width: 168)
                 .padding(.vertical, 0)
                 .sensoryFeedback(.selection, trigger: revealedLineCount)
 
-                Spacer(minLength: 2)
+                Spacer(minLength: 4)
 
                 VStack(alignment: .leading, spacing: 5) {
                     ForEach(Array(displayLines.enumerated().reversed()), id: \.offset) {
@@ -251,10 +251,10 @@ struct CastingHomeView: View {
                     }
                 }
                 .frame(width: 44, alignment: .leading)
-                .padding(.vertical, 4)
-                .padding(.horizontal, 5)
+                .padding(.vertical, 3)
+                .padding(.horizontal, 4)
 
-                Spacer(minLength: 0)
+                Spacer(minLength: 2)
             }
 
             if hasCompletedCasting {
@@ -267,17 +267,20 @@ struct CastingHomeView: View {
                         .foregroundStyle(resultSecondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.top, 1)
+                .padding(.top, 4)
             }
 
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 17)
-        .padding(.bottom, 14)
+        .padding(.horizontal, 23)
+        .padding(.top, 18)
+        .padding(.bottom, hasCompletedCasting ? 18 : 15)
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: hasCompletedCasting ? 204 : 184, alignment: .topLeading)
+        .frame(minHeight: hasCompletedCasting ? 222 : 184, alignment: .topLeading)
         .background {
             oraclePanelFrameSurface
+        }
+        .overlay {
+            OracleCodePanelBorder(lineOpacity: 0.72)
         }
         .animation(.easeInOut(duration: 0.32), value: didPrepareCasting)
         .animation(.easeInOut(duration: 0.32), value: isCasting)
@@ -304,6 +307,9 @@ struct CastingHomeView: View {
         .frame(maxWidth: .infinity, minHeight: 118, alignment: .topLeading)
         .background {
             analysisPanelFrameSurface
+        }
+        .overlay {
+            OracleCodePanelBorder(lineOpacity: 0.72)
         }
     }
 
@@ -391,8 +397,6 @@ struct CastingHomeView: View {
         GeometryReader { proxy in
             ZStack {
                 panelPaperFill
-
-                oracleInputPanelBorder(proxy: proxy, saturation: 0.42, opacity: 0.82)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .clipped()
@@ -432,8 +436,6 @@ struct CastingHomeView: View {
                     .padding(.trailing, 6)
                     .padding(.bottom, 4)
                     .accessibilityHidden(true)
-
-                oracleInputPanelBorder(proxy: proxy, saturation: 0.42, opacity: 0.82)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .clipped()
@@ -452,22 +454,6 @@ struct CastingHomeView: View {
                 .blendMode(colorScheme == .dark ? .softLight : .multiply)
                 .accessibilityHidden(true)
         }
-    }
-
-    private func oracleInputPanelBorder(
-        proxy: GeometryProxy,
-        saturation: Double,
-        opacity: Double
-    ) -> some View {
-        Image("OracleInputPanelBorder")
-            .resizable(
-                capInsets: EdgeInsets(top: 52, leading: 62, bottom: 52, trailing: 62),
-                resizingMode: .stretch
-            )
-            .frame(width: proxy.size.width, height: proxy.size.height)
-            .saturation(saturation)
-            .opacity(opacity)
-            .accessibilityHidden(true)
     }
 
     private var coinCloud: some View {
@@ -825,13 +811,109 @@ private struct PanelDivider: View {
 }
 
 private struct PanelCorner: View {
+    var size: CGFloat = 24
+    var opacity: Double = 0.42
+
     var body: some View {
         Image("PanelCornerAccent")
             .resizable()
             .scaledToFit()
-            .frame(width: 24, height: 24)
-            .opacity(0.42)
+            .frame(width: size, height: size)
+            .opacity(opacity)
             .accessibilityHidden(true)
+    }
+}
+
+private struct OracleCodePanelBorder: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let lineOpacity: Double
+
+    var body: some View {
+        GeometryReader { proxy in
+            let inset = CGFloat(5)
+            let innerInset = CGFloat(8.5)
+            let lineWidth = CGFloat(1.4)
+            let fineLineWidth = CGFloat(0.7)
+            let border = YiyaoPalette.grayGreen(colorScheme).opacity(lineOpacity)
+            let fineBorder = YiyaoPalette.grayGreen(colorScheme).opacity(lineOpacity * 0.42)
+
+            ZStack {
+                panelLine(
+                    color: border,
+                    width: max(0, proxy.size.width - inset * 2),
+                    height: lineWidth,
+                    x: inset,
+                    y: inset
+                )
+                panelLine(
+                    color: border,
+                    width: max(0, proxy.size.width - inset * 2),
+                    height: lineWidth,
+                    x: inset,
+                    y: max(0, proxy.size.height - inset - lineWidth)
+                )
+                panelLine(
+                    color: border,
+                    width: lineWidth,
+                    height: max(0, proxy.size.height - inset * 2),
+                    x: inset,
+                    y: inset
+                )
+                panelLine(
+                    color: border,
+                    width: lineWidth,
+                    height: max(0, proxy.size.height - inset * 2),
+                    x: max(0, proxy.size.width - inset - lineWidth),
+                    y: inset
+                )
+
+                panelLine(
+                    color: fineBorder,
+                    width: max(0, proxy.size.width - innerInset * 2),
+                    height: fineLineWidth,
+                    x: innerInset,
+                    y: innerInset
+                )
+                panelLine(
+                    color: fineBorder,
+                    width: max(0, proxy.size.width - innerInset * 2),
+                    height: fineLineWidth,
+                    x: innerInset,
+                    y: max(0, proxy.size.height - innerInset - fineLineWidth)
+                )
+                panelLine(
+                    color: fineBorder,
+                    width: fineLineWidth,
+                    height: max(0, proxy.size.height - innerInset * 2),
+                    x: innerInset,
+                    y: innerInset
+                )
+                panelLine(
+                    color: fineBorder,
+                    width: fineLineWidth,
+                    height: max(0, proxy.size.height - innerInset * 2),
+                    x: max(0, proxy.size.width - innerInset - fineLineWidth),
+                    y: innerInset
+                )
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityHidden(true)
+    }
+
+    private func panelLine(
+        color: Color,
+        width: CGFloat,
+        height: CGFloat,
+        x: CGFloat,
+        y: CGFloat
+    ) -> some View {
+        Rectangle()
+            .fill(color)
+            .frame(width: width, height: height)
+            .position(x: x + width / 2, y: y + height / 2)
     }
 }
 
